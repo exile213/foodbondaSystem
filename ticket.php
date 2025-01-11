@@ -12,9 +12,9 @@ if (!isset($_GET['id']) && !is_numeric($_GET['id'])) {
 $id = intval($_GET['id']);
 
 // Fetch reservation details
-$sql = "SELECT * FROM reservations WHERE reservation_id = ? AND customer_id = ?";
+$sql = 'SELECT * FROM reservations WHERE reservation_id = ? AND customer_id = ?';
 $stmt = $conn->prepare($sql);
-$stmt->bind_param("ii", $id, $_SESSION['customer_id']);
+$stmt->bind_param('ii', $id, $_SESSION['customer_id']);
 $stmt->execute();
 $result = $stmt->get_result();
 
@@ -29,6 +29,7 @@ $reservation = $result->fetch_assoc();
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -36,12 +37,23 @@ $reservation = $result->fetch_assoc();
     <link rel="stylesheet" href="style3.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="main.css">
+    <style>
+        .center-content {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            text-align: center;
+        }
+    </style>
 </head>
+
 <body>
     <?php include 'navbar.php'; ?>
 
-    <div class="container mt-5">
-        <h1 class="mb-4">Reservation Receipt</h1>
+    <div class="container mt-5 center-content">
+        <h1 class="mb-4">Reservation Ticket</h1>
         <div class="card">
             <div class="card-body">
                 <h2 class="card-title">Thank you for your reservation!</h2>
@@ -59,17 +71,20 @@ $reservation = $result->fetch_assoc();
                 <p><strong>Status:</strong> <?php echo ucfirst(htmlspecialchars($reservation['status'])); ?></p>
 
                 <?php if (!empty($reservation['gcash_receipt_path'])): ?>
-                    <p><strong>Uploaded GCash Receipt:</strong></p>
-                    <img src="<?php echo htmlspecialchars($reservation['gcash_receipt_path']); ?>" alt="GCash Receipt" style="max-width: 300px; max-height: 300px;">
+                <p><strong>Uploaded GCash Receipt:</strong></p>
+                <img src="<?php echo htmlspecialchars($reservation['gcash_receipt_path']); ?>" alt="GCash Receipt" style="max-width: 300px; max-height: 300px;">
                 <?php else: ?>
-                    <p>No GCash receipt uploaded.</p>
+                <p>No GCash receipt uploaded.</p>
                 <?php endif; ?>
 
                 <div class="mt-4">
                     <a href="customer_dashboard.php" class="btn btn-primary">Back to Dashboard</a>
                     <?php if ($reservation['status'] === 'pending'): ?>
-                        <a href="update_reservation.php?id=<?php echo $id; ?>" class="btn btn-secondary">Update Reservation</a>
-                        <a href="cancel_reservation.php?id=<?php echo $id; ?>" class="btn btn-danger" onclick="return confirm('Are you sure you want to cancel this reservation?');">Cancel Reservation</a>
+                    <a href="update_reservation.php?id=<?php echo $id; ?>" class="btn btn-secondary">Update
+                        Reservation</a>
+                    <a href="cancel_reservation.php?id=<?php echo $id; ?>" class="btn btn-danger"
+                        onclick="return confirm('Are you sure you want to cancel this reservation?');">Cancel
+                        Reservation</a>
                     <?php endif; ?>
                 </div>
             </div>
@@ -78,4 +93,5 @@ $reservation = $result->fetch_assoc();
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>

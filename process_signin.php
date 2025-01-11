@@ -7,21 +7,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password = $_POST['password'];
 
     if (!$email || !$password) {
-        $_SESSION['error'] = "Please fill in all fields";
+        $_SESSION['error'] = 'Please fill in all fields';
         header('Location: signin.php');
         exit();
     }
 
-    $stmt = $conn->prepare("SELECT customer_id, password FROM customers WHERE email = ?");
-    $stmt->bind_param("s", $email);
+    $stmt = $conn->prepare('SELECT customer_id, password FROM customers WHERE email = ?');
+    $stmt->bind_param('s', $email);
     $stmt->execute();
     $result = $stmt->get_result();
-    
+
     if ($result->num_rows === 1) {
         $user = $result->fetch_assoc();
         if (password_verify($password, $user['password'])) {
             $_SESSION['customer_id'] = $user['customer_id'];
-            
+
             // Redirect to reservation page if that's where they came from
             if (isset($_SESSION['redirect_after_login'])) {
                 $redirect = $_SESSION['redirect_after_login'];
@@ -29,13 +29,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 header("Location: $redirect");
                 exit();
             }
-            
+
             header('Location: customer_dashboard.php');
             exit();
         }
     }
-    
-    $_SESSION['error'] = "Invalid email or password";
+
+    $_SESSION['error'] = 'Invalid email or password';
     header('Location: signin.php');
     exit();
 }

@@ -5,14 +5,15 @@ require_once 'db_conn.php';
 
 // Fetch customer data
 $customer_id = $_SESSION['customer_id'];
-$stmt = $conn->prepare("SELECT * FROM customers WHERE customer_id = ?");
-$stmt->bind_param("i", $customer_id);
+$stmt = $conn->prepare('SELECT * FROM customers WHERE customer_id = ?');
+$stmt->bind_param('i', $customer_id);
 $stmt->execute();
 $customer = $stmt->get_result()->fetch_assoc();
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -23,18 +24,19 @@ $customer = $stmt->get_result()->fetch_assoc();
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
     <link href="main.css" rel="stylesheet">
 </head>
+
 <body>
     <?php include 'navbar.php'; ?>
 
     <div class="container py-4">
         <?php if (isset($_SESSION['success_message'])): ?>
-            <div class="alert alert-success alert-dismissible fade show mb-4" role="alert">
-                <?php 
-                echo htmlspecialchars($_SESSION['success_message']);
-                unset($_SESSION['success_message']);
-                ?>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
+        <div class="alert alert-success alert-dismissible fade show mb-4" role="alert">
+            <?php
+            echo htmlspecialchars($_SESSION['success_message']);
+            unset($_SESSION['success_message']);
+            ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
         <?php endif; ?>
 
         <div class="row">
@@ -47,7 +49,7 @@ $customer = $stmt->get_result()->fetch_assoc();
                     </div>
                 </div>
             </div>
-            
+
             <div class="col-md-8">
                 <div class="card mb-4">
                     <div class="card-header">
@@ -84,7 +86,7 @@ $customer = $stmt->get_result()->fetch_assoc();
                                             </span>
                                         </td>
                                         <td>
-                                            <a href="view_reservation.php?id=<?php echo $reservation['reservation_id']; ?>" class="btn btn-sm btn-primary">
+                                            <a href="ticket.php?id=<?php echo $reservation['reservation_id']; ?>" class="btn btn-sm btn-primary">
                                                 <i class="fas fa-eye"></i> View
                                             </a>
                                         </td>
@@ -108,4 +110,5 @@ $customer = $stmt->get_result()->fetch_assoc();
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>

@@ -36,9 +36,7 @@ try {
     $payment_method = htmlspecialchars(trim($_POST['payment_method']));
 
     // Validate required fields
-    if (!$first_name || !$last_name || !$contact || !$email || !$event_date || 
-        !$delivery_time || !$delivery_address || !$event_type || !$package_name || 
-        !$package_price || !$payment_method) {
+    if (!$first_name || !$last_name || !$contact || !$email || !$event_date || !$delivery_time || !$delivery_address || !$event_type || !$package_name || !$package_price || !$payment_method) {
         throw new Exception('All required fields must be filled');
     }
 
@@ -61,14 +59,14 @@ try {
     // Handle additional dishes
     if (isset($_POST['additionalDishes']) && is_array($_POST['additionalDishes'])) {
         $additional_dishes = array_map('htmlspecialchars', $_POST['additionalDishes']);
-        $selected_dishes .= ", PLUS ADDITIONAL DISHES: " . implode(", ", $additional_dishes);
+        $selected_dishes .= ', PLUS ADDITIONAL DISHES: ' . implode(', ', $additional_dishes);
     }
 
     // Handle file upload
     $gcash_receipt_path = null;
     if ($payment_method === 'Downpayment 50%' && isset($_FILES['gcash_receipt'])) {
         $upload_dir = 'uploads/receipts/';
-        
+
         // Create directory if it doesn't exist
         if (!file_exists($upload_dir)) {
             if (!mkdir($upload_dir, 0777, true)) {
@@ -91,7 +89,7 @@ try {
         $file_extension = pathinfo($_FILES['gcash_receipt']['name'], PATHINFO_EXTENSION);
         $file_name = uniqid() . '.' . $file_extension;
         $target_path = $upload_dir . $file_name;
-        
+
         if (!move_uploaded_file($_FILES['gcash_receipt']['tmp_name'], $target_path)) {
             throw new Exception('Failed to upload receipt');
         }
@@ -115,31 +113,26 @@ try {
             throw new Exception('Failed to prepare statement: ' . $conn->error);
         }
 
-        $stmt->bind_param(
-            "isssssssssssiss",
-            $customer_id, $first_name, $middle_name, $last_name, $contact, $email,
-            $event_date, $delivery_time, $delivery_address, $event_type,
-            $package_name, $selected_dishes, $package_price, $payment_method,
-            $gcash_receipt_path
-        );
+        $stmt->bind_param('isssssssssssiss', $customer_id, $first_name, $middle_name, $last_name, $contact, $email, $event_date, $delivery_time, $delivery_address, $event_type, $package_name, $selected_dishes, $package_price, $payment_method, $gcash_receipt_path);
 
         if (!$stmt->execute()) {
             throw new Exception('Failed to save reservation: ' . $stmt->error);
         }
 
+        // Get the new reservation_id
+        $reservation_id = $stmt->insert_id;
+
         // Commit transaction
         $conn->commit();
 
-        $_SESSION['reservation_success'] = "Your reservation has been successfully submitted!";
-        header("Location: receipt.php?id=$reservation_id");
+        $_SESSION['reservation_success'] = 'Your reservation has been successfully submitted!';
+        header("Location: ticket.php?id=$reservation_id");
         exit();
-
     } catch (Exception $e) {
         // Rollback transaction on error
         $conn->rollback();
         throw $e;
     }
-
 } catch (Exception $e) {
     $_SESSION['reservation_error'] = $e->getMessage();
     header('Location: reservation.php');

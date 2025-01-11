@@ -2,9 +2,10 @@
 require_once 'session.php';
 require_once 'db_conn.php';
 
-function checkAuthAndRedirect() {
+function checkAuthAndRedirect()
+{
     if (!isLoggedIn()) {
-        $_SESSION['redirect_after_login'] = 'reservation.php';
+        $_SESSION['redirect_after_login'] = 'ticket.php';
         $_SESSION['show_login_alert'] = true;
         header('Location: signin.php');
         exit();
