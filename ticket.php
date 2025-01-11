@@ -82,9 +82,12 @@ $reservation = $result->fetch_assoc();
                     <?php if ($reservation['status'] === 'pending'): ?>
                     <a href="update_reservation.php?id=<?php echo $id; ?>" class="btn btn-secondary">Update
                         Reservation</a>
-                    <a href="cancel_reservation.php?id=<?php echo $id; ?>" class="btn btn-danger"
-                        onclick="return confirm('Are you sure you want to cancel this reservation?');">Cancel
-                        Reservation</a>
+                    <form action="cancel_reservation.php" method="POST" style="display:inline;">
+                        <input type="hidden" name="reservation_id" value="<?php echo $reservation['reservation_id']; ?>">
+                        <button type="submit" class="btn btn-danger"
+                            onclick="return confirm('Are you sure you want to cancel this reservation?');">Cancel
+                            Reservation</button>
+                    </form>
                     <?php endif; ?>
                 </div>
             </div>
