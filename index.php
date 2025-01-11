@@ -1,9 +1,21 @@
 <?php
 require_once 'header.php';
+require_once 'db_conn.php';
+
+$sql = 'SELECT * FROM packages';
+$result = $conn->query($sql);
+$packages = [];
+
+if ($result->num_rows > 0) {
+    while ($row = $result->fetch_assoc()) {
+        $packages[] = $row;
+    }
+}
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,7 +24,17 @@ require_once 'header.php';
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="main.css" rel="stylesheet">
+    <style>
+        .card-custom {
+            margin-right: 50px;
+            width: 18rem;
+            /* Set the desired width */
+            height: 22rem;
+            /* Set the desired height */
+        }
+    </style>
 </head>
+
 <body>
     <nav class="navbar navbar-expand-lg">
         <div class="container">
@@ -41,35 +63,36 @@ require_once 'header.php';
                 </ul>
                 <div class="auth-buttons">
                     <?php if (isLoggedIn()): ?>
-                        <div class="d-flex align-items-center">
-                            <div class="notification-bell me-3 position-relative">
-                                <a href="#" class="text-white" data-bs-toggle="dropdown">
-                                    <i class="fas fa-bell"></i>
-                                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                                        3
-                                    </span>
-                                </a>
-                                <div class="dropdown-menu dropdown-menu-end">
-                                    <h6 class="dropdown-header">Notifications</h6>
-                                    <a class="dropdown-item" href="#">New message from admin</a>
-                                    <a class="dropdown-item" href="#">Your reservation is confirmed</a>
-                                    <a class="dropdown-item" href="#">Payment received</a>
-                                </div>
+                    <div class="d-flex align-items-center">
+                        <div class="notification-bell me-3 position-relative">
+                            <a href="#" class="text-white" data-bs-toggle="dropdown">
+                                <i class="fas fa-bell"></i>
+                                <span
+                                    class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                    3
+                                </span>
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-end">
+                                <h6 class="dropdown-header">Notifications</h6>
+                                <a class="dropdown-item" href="#">New message from admin</a>
+                                <a class="dropdown-item" href="#">Your reservation is confirmed</a>
+                                <a class="dropdown-item" href="#">Payment received</a>
                             </div>
-                            <a href="customer_dashboard.php" class="btn btn-outline-light me-2">
-                                <i class="fas fa-tachometer-alt"></i> Dashboard
-                            </a>
-                            <a href="logout.php" class="btn btn-light">
-                                <i class="fas fa-sign-out-alt"></i> Logout
-                            </a>
                         </div>
+                        <a href="customer_dashboard.php" class="btn btn-outline-light me-2">
+                            <i class="fas fa-tachometer-alt"></i> Dashboard
+                        </a>
+                        <a href="logout.php" class="btn btn-light">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </a>
+                    </div>
                     <?php else: ?>
-                        <a href="signin.php" class="btn btn-outline-light">
-                            <i class="fas fa-sign-in-alt"></i> Sign In
-                        </a>
-                        <a href="signup.php" class="btn btn-light">
-                            <i class="fas fa-user-plus"></i> Sign Up
-                        </a>
+                    <a href="signin.php" class="btn btn-outline-light">
+                        <i class="fas fa-sign-in-alt"></i> Sign In
+                    </a>
+                    <a href="signup.php" class="btn btn-light">
+                        <i class="fas fa-user-plus"></i> Sign Up
+                    </a>
                     <?php endif; ?>
                 </div>
             </div>
@@ -78,7 +101,7 @@ require_once 'header.php';
 
     <?php if (isset($_SESSION['success_message'])): ?>
     <div class="alert alert-success alert-dismissible fade show" role="alert">
-        <?php 
+        <?php
         echo htmlspecialchars($_SESSION['success_message']);
         unset($_SESSION['success_message']);
         ?>
@@ -97,156 +120,18 @@ require_once 'header.php';
         <div class="container">
             <h2 class="text-center mb-5">Our Menu Packages</h2>
             <div class="row row-cols-1 row-cols-md-3 g-4 mb-5">
+                <?php foreach ($packages as $package): ?>
                 <div class="col">
-                    <div class="card h-100">
-                        <img src="package1.jpg" class="card-img-top" alt="Package 1">
+                    <div class="card card-custom h-100">
                         <div class="card-body">
-                            <h3 class="card-title">Package Name</h3>
-                            <p class="card-text">Description of the package including the items and serving size.</p>
-                            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#reservationModal">
-                                <i class="fas fa-shopping-cart"></i> Check out!
-                            </button>
+                            <h5 class="card-title"><?php echo htmlspecialchars($package['package_name']); ?></h5>
+                            <p class="card-text"><strong>Price:</strong> ₱<?php echo number_format($package['price'], 2); ?></p>
+                            <a href="reservation.php?package=<?php echo urlencode($package['package_name']); ?>" class="btn btn-primary">Reserve
+                                Now</a>
                         </div>
                     </div>
                 </div>
-                <div class="col">
-                    <div class="card h-100">
-                        <img src="package1.jpg" class="card-img-top" alt="Package 1">
-                        <div class="card-body">
-                            <h3 class="card-title">Package Name</h3>
-                            <p class="card-text">Description of the package including the items and serving size.</p>
-                            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#reservationModal">
-                                <i class="fas fa-shopping-cart"></i> Check out!
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                <div class="col">
-                    <div class="card h-100">
-                        <img src="package1.jpg" class="card-img-top" alt="Package 1">
-                        <div class="card-body">
-                            <h3 class="card-title">Package Name</h3>
-                            <p class="card-text">Description of the package including the items and serving size.</p>
-                            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#reservationModal">
-                                <i class="fas fa-shopping-cart"></i> Check out!
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="row row-cols-1 row-cols-md-3 g-4 mb-5">
-                <div class="col">
-                    <div class="card h-100">
-                        <img src="package1.jpg" class="card-img-top" alt="Package 1">
-                        <div class="card-body">
-                            <h3 class="card-title">Package Name</h3>
-                            <p class="card-text">Description of the package including the items and serving size.</p>
-                            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#reservationModal">
-                                <i class="fas fa-shopping-cart"></i> Check out!
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                <div class="col">
-                    <div class="card h-100">
-                        <img src="package1.jpg" class="card-img-top" alt="Package 1">
-                        <div class="card-body">
-                            <h3 class="card-title">Package Name</h3>
-                            <p class="card-text">Description of the package including the items and serving size.</p>
-                            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#reservationModal">
-                                <i class="fas fa-shopping-cart"></i> Check out!
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                <div class="col">
-                    <div class="card h-100">
-                        <img src="package1.jpg" class="card-img-top" alt="Package 1">
-                        <div class="card-body">
-                            <h3 class="card-title">Package Name</h3>
-                            <p class="card-text">Description of the package including the items and serving size.</p>
-                            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#reservationModal">
-                                <i class="fas fa-shopping-cart"></i> Check out!
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="row row-cols-1 row-cols-md-3 g-4 mb-5">
-                <div class="col">
-                    <div class="card h-100">
-                        <img src="package1.jpg" class="card-img-top" alt="Package 1">
-                        <div class="card-body">
-                            <h3 class="card-title">Package Name</h3>
-                            <p class="card-text">Description of the package including the items and serving size.</p>
-                            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#reservationModal">
-                                <i class="fas fa-shopping-cart"></i> Check out!
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                <div class="col">
-                    <div class="card h-100">
-                        <img src="package1.jpg" class="card-img-top" alt="Package 1">
-                        <div class="card-body">
-                            <h3 class="card-title">Package Name</h3>
-                            <p class="card-text">Description of the package including the items and serving size.</p>
-                            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#reservationModal">
-                                <i class="fas fa-shopping-cart"></i> Check out!
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                <div class="col">
-                    <div class="card h-100">
-                        <img src="package1.jpg" class="card-img-top" alt="Package 1">
-                        <div class="card-body">
-                            <h3 class="card-title">Package Name</h3>
-                            <p class="card-text">Description of the package including the items and serving size.</p>
-                            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#reservationModal">
-                                <i class="fas fa-shopping-cart"></i> Check out!
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="row row-cols-1 row-cols-md-3 g-4 mb-5">
-                <div class="col">
-                    <div class="card h-100">
-                        <img src="package1.jpg" class="card-img-top" alt="Package 1">
-                        <div class="card-body">
-                            <h3 class="card-title">Package Name</h3>
-                            <p class="card-text">Description of the package including the items and serving size.</p>
-                            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#reservationModal">
-                                <i class="fas fa-shopping-cart"></i> Check out!
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                <div class="col">
-                    <div class="card h-100">
-                        <img src="package1.jpg" class="card-img-top" alt="Package 1">
-                        <div class="card-body">
-                            <h3 class="card-title">Package Name</h3>
-                            <p class="card-text">Description of the package including the items and serving size.</p>
-                            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#reservationModal">
-                                <i class="fas fa-shopping-cart"></i> Check out!
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                <div class="col">
-                    <div class="card h-100">
-                        <img src="package1.jpg" class="card-img-top" alt="Package 1">
-                        <div class="card-body">
-                            <h3 class="card-title">Package Name</h3>
-                            <p class="card-text">Description of the package including the items and serving size.</p>
-                            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#reservationModal">
-                                <i class="fas fa-shopping-cart"></i> Check out!
-                            </button>
-                        </div>
-                    </div>
-                </div>
+                <?php endforeach; ?>
             </div>
         </div>
     </div>
@@ -286,16 +171,24 @@ require_once 'header.php';
             <h2>Frequently Asked Questions (FAQs)</h2>
             <br>
             <h4>1. What happens if I need to cancel my reservation?</h4>
-            <p>You can cancel your reservation with a full refund if done at least 24 hours in advance. Cancellations made after 24 hours will not be refunded.</p>
+            <p>You can cancel your reservation with a full refund if done at least 24 hours in advance.
+                Cancellations
+                made after 24 hours will not be refunded.</p>
 
             <h4>2. Can I change my reservation date and time?</h4>
-            <p>Yes, you can change your reservation date and time. Please contact us at least 24 hours in advance to make changes.</p>
+            <p>Yes, you can change your reservation date and time. Please contact us at least 24 hours in
+                advance to
+                make changes.</p>
 
             <h4>3. How do I make the down payment?</h4>
-            <p>You can make the down payment online or in person. Please refer to the payment instructions provided during the reservation process.</p>
+            <p>You can make the down payment online or in person. Please refer to the payment instructions
+                provided
+                during the reservation process.</p>
 
             <h4>4. Is my down payment refundable?</h4>
-            <p>The down payment is non-refundable if you cancel less than 24 hours before your reservation. Please ensure your plans are final before reserving.</p>
+            <p>The down payment is non-refundable if you cancel less than 24 hours before your reservation.
+                Please
+                ensure your plans are final before reserving.</p>
         </div>
     </div>
 
@@ -323,4 +216,5 @@ require_once 'header.php';
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>

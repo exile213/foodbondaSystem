@@ -1,7 +1,6 @@
 <?php
 require_once 'session.php';
 require_once 'db_conn.php';
-
 $customer_id = $_SESSION['customer_id'] ?? null;
 if ($customer_id) {
     $stmt = $conn->prepare('SELECT first_name, middle_name, last_name, email FROM customers WHERE customer_id = ?');
@@ -10,8 +9,20 @@ if ($customer_id) {
     $result = $stmt->get_result();
     $customer = $result->fetch_assoc();
 }
-?>
+$selected_package = isset($_GET['package']) ? $_GET['package'] : '';
 
+// Fetch packages from the database
+$sql = 'SELECT package_name, price, included_dishes, additional_dishes_limit FROM packages';
+$result = $conn->query($sql);
+$packages = [];
+
+if ($result->num_rows > 0) {
+    while ($row = $result->fetch_assoc()) {
+        $row['price'] = (float) $row['price']; // Ensure price is a float
+        $packages[] = $row;
+    }
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -22,11 +33,7 @@ if ($customer_id) {
     <link rel="icon" type="image/x-icon" href="logo.jpg">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link
-        href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Inter:wght@400;500&display=swap"
-        rel="stylesheet">
     <link href="reservation.css" rel="stylesheet">
-
 </head>
 
 <body>
@@ -39,7 +46,7 @@ if ($customer_id) {
 
         <form class="reservation-form" action="<?php echo isset($update) ? 'process_update_reservation.php' : 'process_reservation.php'; ?>" method="POST" enctype="multipart/form-data"
             id="reservationForm">
-            <h2>Make Your Reservation</h2>
+            <h2><?php echo isset($update) ? 'Update Your Reservation' : 'Make Your Reservation'; ?></h2>
 
             <!-- Personal Information Section -->
             <div class="form-section">
@@ -106,7 +113,6 @@ if ($customer_id) {
                 </div>
             </div>
 
-            ...
             <?php if (!isset($update)): ?>
             <!-- Package Selection Section -->
             <div class="form-section">
@@ -115,25 +121,17 @@ if ($customer_id) {
                     <label for="package" class="form-label">Choose Package</label>
                     <select class="form-select" id="package" name="package" required onchange="updateDishLimit()">
                         <option value="">Select a package</option>
-                        <option value="PACKAGE 1">PACKAGE 1</option>
-                        <option value="PACKAGE 2">PACKAGE 2</option>
-                        <option value="PACKAGE 3">PACKAGE 3</option>
-                        <option value="PACKAGE 4">PACKAGE 4</option>
-                        <option value="PACKAGE 5">PACKAGE 5</option>
-                        <option value="LECHON PACKAGE A (10-12 KGS)">LECHON PACKAGE A (10-12 KGS)</option>
-                        <option value="LECHON PACKAGE A (12-13 KGS)">LECHON PACKAGE A (12-13 KGS)</option>
-                        <option value="LECHON PACKAGE B">LECHON PACKAGE B</option>
-                        <option value="LECHON PACKAGE C">LECHON PACKAGE C</option>
-                        <option value="LECHON PACKAGE D">LECHON PACKAGE D</option>
-                        <option value="LECHON PACKAGE E">LECHON PACKAGE E</option>
+                        <?php foreach ($packages as $package): ?>
+                        <option value="<?php echo htmlspecialchars($package['package_name']); ?>" <?php echo $selected_package === $package['package_name'] ? 'selected' : ''; ?>>
+                            <?php echo htmlspecialchars($package['package_name']); ?>
+                        </option>
+                        <?php endforeach; ?>
                     </select>
                 </div>
-
                 <div class="mb-3">
                     <label for="selectedDishes" class="form-label">Included Dishes</label>
                     <textarea class="form-control" id="selectedDishes" name="selectedDishes" readonly></textarea>
                 </div>
-
                 <div id="additionalDishes" style="display: none;" class="mb-3">
                     <label class="form-label">Additional Dishes</label>
                     <p id="dishLimit" class="text-muted"></p>
@@ -143,29 +141,27 @@ if ($customer_id) {
                         
                         foreach ($availableDishes as $dish) {
                             echo '<div class="col-md-4">
-                                                                                <div class="form-check">
-                                                                                    <input class="form-check-input" type="checkbox" name="additionalDishes[]" value="' .
+                                                                                                                                                                                                                                                        <div class="form-check">
+                                                                                                                                                                                                                                                            <input class="form-check-input" type="checkbox" name="additionalDishes[]" value="' .
                                 htmlspecialchars($dish) .
                                 '" id="' .
                                 htmlspecialchars($dish) .
                                 '">
-                                                                                    <label class="form-check-label" for="' .
+                                                                                                                                                                                                                                                            <label class="form-check-label" for="' .
                                 htmlspecialchars($dish) .
                                 '">' .
                                 htmlspecialchars($dish) .
                                 '</label>
-                                                                                </div>
-                                                                            </div>';
+                                                                                                                                                                                                                                                        </div>
+                                                                                                                                                                                                                                                    </div>';
                         }
                         ?>
                     </div>
                 </div>
-
                 <div class="mb-3">
                     <label for="originalPrice" class="form-label">Original Price</label>
                     <input type="text" class="form-control" id="originalPrice" readonly>
                 </div>
-
                 <div class="mb-3">
                     <label for="priceDisplay" class="form-label">Downpayment Package Price</label>
                     <input type="text" class="form-control" id="priceDisplay" readonly>
@@ -184,13 +180,11 @@ if ($customer_id) {
                         <option value="Downpayment 50%">Downpayment 50% (GCash)</option>
                     </select>
                 </div>
-
                 <div id="gcashSection" class="gcash-section" style="display: none;">
                     <h4>GCash Payment Details</h4>
                     <p><strong>GCash Number:</strong> 09300712088</p>
                     <p><strong>Account Name:</strong> JO*N PA*L B.</p>
                     <img src="qr.jpg" alt="GCash QR Code" class="img-fluid">
-
                     <div class="mb-3 mt-3">
                         <label for="gcash_receipt" class="form-label">Upload GCash Receipt</label>
                         <input type="file" class="form-control" id="gcash_receipt" name="gcash_receipt"
@@ -200,9 +194,8 @@ if ($customer_id) {
                 </div>
             </div>
             <?php endif; ?>
-            ...
+
             <button type="submit" class="btn btn-primary"><?php echo isset($update) ? 'Update Reservation' : 'Submit Reservation'; ?></button>
-            ...
         </form>
     </div>
 
@@ -218,66 +211,10 @@ if ($customer_id) {
             const additionalDishesElement = document.getElementById('additionalDishes');
             const dishLimitElement = document.getElementById('dishLimit');
 
-            // Package configurations
-            const packages = {
-                'PACKAGE 1': {
-                    price: 2999,
-                    dishes: ['FISH FILLET', 'CHOPSUEY', 'FRIED CHICKEN', 'PORK BBQ', 'PORK SOIMAI']
-                },
-                'PACKAGE 2': {
-                    price: 2999,
-                    dishes: ['LUMPIA', 'PORK BBQ', 'CORDON', 'BIHON GUISADO', 'FISH FILLET', 'CHOPSUEY']
-                },
-                'PACKAGE 3': {
-                    price: 2999,
-                    dishes: ['LUMPIA', 'FISH SWEET AND SOUR', 'PORK BBQ', 'SOTANGHON GUISADO', 'BUFFALO WINGS',
-                        'VALENCIANA'
-                    ]
-                },
-                'PACKAGE 4': {
-                    price: 2999,
-                    dishes: ['LUMPIA', 'FISH FILLET', 'FRIED WHOLE CHICKEN', 'PANCIT GUISADO', 'CHOPSUEY',
-                        'BUFFALO WINGS'
-                    ]
-                },
-                'PACKAGE 5': {
-                    price: 2999,
-                    dishes: ['LUMPIA', 'SOTANGHON', 'CARBONARA', 'PORK BBQ', 'SOIMAI', 'FISH FILLET',
-                        'PORK STEAK'
-                    ]
-                },
-                'LECHON PACKAGE A (10-12 KGS)': {
-                    price: 7000,
-                    dishes: ['LECHON WITH FREE SAUCE AND DINUGUAN']
-                },
-                'LECHON PACKAGE A (12-13 KGS)': {
-                    price: 7500,
-                    dishes: ['LECHON WITH FREE SAUCE AND DINUGUAN']
-                },
-                'LECHON PACKAGE B': {
-                    price: 9000,
-                    dishes: ['LECHON WITH FREE SAUCE AND DINUGUAN'],
-                    additionalDishesLimit: 3
-                },
-                'LECHON PACKAGE C': {
-                    price: 9500,
-                    dishes: ['LECHON WITH FREE SAUCE AND DINUGUAN'],
-                    additionalDishesLimit: 4
-                },
-                'LECHON PACKAGE D': {
-                    price: 10000,
-                    dishes: ['LECHON WITH FREE SAUCE AND DINUGUAN'],
-                    additionalDishesLimit: 5
-                },
-                'LECHON PACKAGE E': {
-                    price: 11000,
-                    dishes: ['LECHON WITH FREE SAUCE AND DINUGUAN'],
-                    additionalDishesLimit: 6
-                }
-            };
+            const packages = <?php echo json_encode($packages); ?>;
 
             function updatePackageInfo() {
-                const selectedPackage = packages[packageSelect.value];
+                const selectedPackage = packages.find(pkg => pkg.package_name === packageSelect.value);
                 if (!selectedPackage) {
                     selectedDishesTextarea.value = '';
                     priceDisplay.value = '';
@@ -289,13 +226,13 @@ if ($customer_id) {
                 }
 
                 // Update the dishes display
-                selectedDishesTextarea.value = selectedPackage.dishes.join(', ');
+                selectedDishesTextarea.value = selectedPackage.included_dishes;
 
                 // Format and display original price
-                origPrice.value = '₱' + selectedPackage.price.toFixed(2);
+                origPrice.value = '₱' + parseFloat(selectedPackage.price).toFixed(2);
 
                 // Calculate and display price
-                let displayPrice = selectedPackage.price;
+                let displayPrice = parseFloat(selectedPackage.price);
                 if (paymentMethodSelect.value === 'Downpayment 50%') {
                     displayPrice = displayPrice / 2;
                 }
@@ -303,11 +240,11 @@ if ($customer_id) {
                 priceDisplay.value = '₱' + displayPrice.toFixed(2);
                 priceInput.value = selectedPackage.price.toFixed(2);
 
-                // Handle additional dish selections for Lechon packages
-                if (selectedPackage.additionalDishesLimit) {
+                // Handle additional dish selections for packages with limits
+                if (selectedPackage.additional_dishes_limit) {
                     additionalDishesElement.style.display = 'block';
                     dishLimitElement.textContent =
-                        `Please select ${selectedPackage.additionalDishesLimit} additional dishes`;
+                        `Please select ${selectedPackage.additional_dishes_limit} additional dishes`;
                 } else {
                     additionalDishesElement.style.display = 'none';
                     dishLimitElement.textContent = '';
@@ -325,14 +262,15 @@ if ($customer_id) {
             const additionalDishCheckboxes = document.querySelectorAll('#additionalDishes input[type="checkbox"]');
             additionalDishCheckboxes.forEach(checkbox => {
                 checkbox.addEventListener('change', function() {
-                    const selectedPackage = packages[packageSelect.value];
-                    if (selectedPackage && selectedPackage.additionalDishesLimit) {
+                    const selectedPackage = packages.find(pkg => pkg.package_name === packageSelect
+                        .value);
+                    if (selectedPackage && selectedPackage.additional_dishes_limit) {
                         const checkedBoxes = document.querySelectorAll(
                             '#additionalDishes input[type="checkbox"]:checked');
-                        if (checkedBoxes.length > selectedPackage.additionalDishesLimit) {
+                        if (checkedBoxes.length > selectedPackage.additional_dishes_limit) {
                             this.checked = false;
                             alert(
-                                `You can only select up to ${selectedPackage.additionalDishesLimit} additional dishes for this package.`
+                                `You can only select up to ${selectedPackage.additional_dishes_limit} additional dishes for this package.`
                             );
                         }
                     }
