@@ -2,10 +2,10 @@
 -- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
--- Host: 127.0.0.1
--- Generation Time: Jan 11, 2025 at 05:20 PM
--- Server version: 10.4.32-MariaDB
--- PHP Version: 8.1.25
+-- Host: localhost
+-- Generation Time: Jan 11, 2025 at 10:05 PM
+-- Server version: 8.0.39
+-- PHP Version: 8.1.10
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -28,15 +28,15 @@ SET time_zone = "+00:00";
 --
 
 CREATE TABLE `customers` (
-  `customer_id` int(11) NOT NULL,
-  `first_name` varchar(50) NOT NULL,
-  `middle_name` varchar(50) DEFAULT NULL,
-  `last_name` varchar(50) NOT NULL,
-  `email` varchar(100) NOT NULL,
-  `password` varchar(255) NOT NULL,
-  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  `customer_id` int NOT NULL,
+  `first_name` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
+  `middle_name` varchar(50) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `last_name` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
+  `email` varchar(100) COLLATE utf8mb4_general_ci NOT NULL,
+  `password` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `last_login` timestamp NULL DEFAULT NULL,
-  `status` enum('active','inactive') DEFAULT 'active'
+  `status` enum('active','inactive') COLLATE utf8mb4_general_ci DEFAULT 'active'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -50,15 +50,38 @@ INSERT INTO `customers` (`customer_id`, `first_name`, `middle_name`, `last_name`
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `owners`
+--
+
+CREATE TABLE `owners` (
+  `owner_id` int NOT NULL,
+  `username` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
+  `password` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
+  `first_name` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
+  `last_name` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
+  `email` varchar(100) COLLATE utf8mb4_general_ci NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `owners`
+--
+
+INSERT INTO `owners` (`owner_id`, `username`, `password`, `first_name`, `last_name`, `email`) VALUES
+(2, 'jrmurbano', '$2y$10$qtDtPICQRSA99/SH3aZqh.Sbwcn1s8SZb6/rdOgxVkRhtRAKt7Ko2', 'Jean Roshan', 'Urbano', 'roshanurbano@gmail.com'),
+(3, 'icmonserate', '$2y$10$rAO/1kS/93e6v3QPvIoMQugkQtzjEJGUyILsQeqtOOypPAhavGGyu', 'Charles Ivan', 'Monserate', 'icmonserate@gmail.com');
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `packages`
 --
 
 CREATE TABLE `packages` (
-  `package_id` int(11) NOT NULL,
-  `package_name` varchar(255) NOT NULL,
+  `package_id` int NOT NULL,
+  `package_name` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
   `price` decimal(10,2) NOT NULL,
-  `included_dishes` text NOT NULL,
-  `additional_dishes_limit` int(11) DEFAULT NULL
+  `included_dishes` text COLLATE utf8mb4_general_ci NOT NULL,
+  `additional_dishes_limit` int DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -85,25 +108,25 @@ INSERT INTO `packages` (`package_id`, `package_name`, `price`, `included_dishes`
 --
 
 CREATE TABLE `reservations` (
-  `reservation_id` int(11) NOT NULL,
-  `customer_id` int(11) NOT NULL,
-  `first_name` varchar(50) NOT NULL,
-  `middle_name` varchar(50) DEFAULT NULL,
-  `last_name` varchar(50) NOT NULL,
-  `contact` varchar(11) NOT NULL,
-  `email` varchar(100) NOT NULL,
+  `reservation_id` int NOT NULL,
+  `customer_id` int NOT NULL,
+  `first_name` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
+  `middle_name` varchar(50) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `last_name` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
+  `contact` varchar(11) COLLATE utf8mb4_general_ci NOT NULL,
+  `email` varchar(100) COLLATE utf8mb4_general_ci NOT NULL,
   `event_date` date NOT NULL,
   `delivery_time` time NOT NULL,
-  `delivery_address` text NOT NULL,
-  `event_type` enum('wedding','birthday','christening','thanksgiving','fiesta') NOT NULL,
-  `package_name` varchar(100) NOT NULL,
-  `selected_dishes` text NOT NULL,
+  `delivery_address` text COLLATE utf8mb4_general_ci NOT NULL,
+  `event_type` enum('wedding','birthday','christening','thanksgiving','fiesta') COLLATE utf8mb4_general_ci NOT NULL,
+  `package_name` varchar(100) COLLATE utf8mb4_general_ci NOT NULL,
+  `selected_dishes` text COLLATE utf8mb4_general_ci NOT NULL,
   `package_price` decimal(10,2) NOT NULL,
-  `payment_method` enum('Cash on Delivery','Downpayment 50%') NOT NULL,
-  `gcash_receipt_path` varchar(255) DEFAULT NULL,
-  `status` enum('pending','confirmed','completed','cancelled') DEFAULT 'pending',
-  `created_at` timestamp NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+  `payment_method` enum('Cash on Delivery','Downpayment 50%') COLLATE utf8mb4_general_ci NOT NULL,
+  `gcash_receipt_path` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `status` enum('pending','confirmed','completed','cancelled') COLLATE utf8mb4_general_ci DEFAULT 'pending',
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -111,14 +134,11 @@ CREATE TABLE `reservations` (
 --
 
 INSERT INTO `reservations` (`reservation_id`, `customer_id`, `first_name`, `middle_name`, `last_name`, `contact`, `email`, `event_date`, `delivery_time`, `delivery_address`, `event_type`, `package_name`, `selected_dishes`, `package_price`, `payment_method`, `gcash_receipt_path`, `status`, `created_at`, `updated_at`) VALUES
-(1, 1, 'Jean Roshan', 'Magbanua', 'Urbano', '09291530238', 'jrmurbano.chmsu@gmail.com', '2025-01-25', '11:45:00', 'Figueroa St., Barangay III, Silay City', 'birthday', 'PACKAGE 4', 'LUMPIA, FISH FILLET, FRIED WHOLE CHICKEN, PANCIT GUISADO, CHOPSUEY, BUFFALO WINGS', 2999.00, 'Downpayment 50%', 'uploads/receipts/6782922007262.png', 'pending', '2025-01-11 15:45:36', '2025-01-11 15:45:36'),
-(2, 2, 'Charles Ivan', 'Colado', 'Monserate', '09464519088', 'cicmonserate.chmsu@gmail.com', '2025-01-25', '11:56:00', '#55 Gomez Extension', 'wedding', 'PACKAGE 5', 'LUMPIA, SOTANGHON, CARBONARA, PORK BBQ, SOIMAI, FISH FILLET, PORK STEAK', 2999.00, 'Downpayment 50%', 'uploads/receipts/678294ba6a264.png', 'pending', '2025-01-11 15:56:42', '2025-01-11 15:56:42'),
-(3, 2, 'Charles Ivan', 'Colado', 'Monserate', '09464519088', 'cicmonserate.chmsu@gmail.com', '2025-01-17', '00:00:00', '#55 Gomez Extension', 'wedding', 'LECHON PACKAGE A (10-12 KGS)', 'LECHON WITH FREE SAUCE AND DINUGUAN', 7000.00, 'Downpayment 50%', 'uploads/receipts/678295d014d91.png', 'pending', '2025-01-11 16:01:20', '2025-01-11 16:01:20'),
-(4, 2, 'Charles Ivan', 'Colado', 'Monserate', '09464519088', 'cicmonserate.chmsu@gmail.com', '2025-01-17', '00:03:00', '#55 Gomez Extension', 'thanksgiving', 'LECHON PACKAGE C', 'LECHON WITH FREE SAUCE AND DINUGUAN, PLUS ADDITIONAL DISHES: Lumpia shanghai-6opcs, Fish sweet and sour, Chicken sisig, Chicken pastel', 9500.00, 'Downpayment 50%', 'uploads/receipts/6782962344ceb.png', 'pending', '2025-01-11 16:02:43', '2025-01-11 16:02:43'),
-(5, 2, 'Charles Ivan', 'Colado', 'Monserate', '09291530238', 'cicmonserate.chmsu@gmail.com', '2025-01-23', '00:05:00', 'Figueroa St., Barangay III, Silay City', 'thanksgiving', 'PACKAGE 2', 'LUMPIA, PORK BBQ, CORDON, BIHON GUISADO, FISH FILLET, CHOPSUEY', 2999.00, 'Downpayment 50%', 'uploads/receipts/678296f7728f1.png', 'pending', '2025-01-11 16:06:15', '2025-01-11 16:06:15'),
-(6, 2, 'Charles Ivan', 'Colado', 'Monserate', '09464519088', 'cicmonserate.chmsu@gmail.com', '2025-01-15', '00:07:00', '#55 Gomez Extension', 'birthday', 'PACKAGE 3', 'LUMPIA, FISH SWEET AND SOUR, PORK BBQ, SOTANGHON GUISADO, BUFFALO WINGS, VALENCIANA', 2999.00, 'Downpayment 50%', 'uploads/receipts/6782975d26108.png', 'pending', '2025-01-11 16:07:57', '2025-01-11 16:07:57'),
-(7, 2, 'Charles Ivan', 'Colado', 'Monserate', '09464519088', 'cicmonserate.chmsu@gmail.com', '2025-01-15', '00:07:00', '#55 Gomez Extension', 'birthday', 'PACKAGE 1', 'FISH FILLET, CHOPSUEY, FRIED CHICKEN, PORK BBQ, PORK SOIMAI', 2999.00, 'Downpayment 50%', 'uploads/receipts/678297f433523.png', 'pending', '2025-01-11 16:10:28', '2025-01-11 16:10:28'),
-(8, 2, 'Charles Ivan', 'Colado', 'Monserate', '09464519088', 'cicmonserate.chmsu@gmail.com', '2025-01-15', '00:07:00', '#55 Gomez Extension', 'birthday', 'PACKAGE 3', 'LUMPIA, FISH SWEET AND SOUR, PORK BBQ, SOTANGHON GUISADO, BUFFALO WINGS, VALENCIANA', 2999.00, 'Downpayment 50%', 'uploads/receipts/678298a5d736f.png', 'pending', '2025-01-11 16:13:25', '2025-01-11 16:13:25');
+(6, 2, 'Peter', 'Castel', 'Hinolan', '09464519088', 'cicmonserate.chmsu@gmail.com', '2025-01-18', '00:07:00', '#55 Gomez Extension', 'birthday', 'PACKAGE 3', 'LUMPIA, FISH SWEET AND SOUR, PORK BBQ, SOTANGHON GUISADO, BUFFALO WINGS, VALENCIANA', 2999.00, 'Downpayment 50%', 'uploads/receipts/6782975d26108.png', 'pending', '2025-01-11 16:07:57', '2025-01-11 18:16:57'),
+(8, 2, 'Charles Ivan', 'Colado', 'Monserate', '09464519088', 'cicmonserate.chmsu@gmail.com', '2025-01-15', '00:07:00', '#55 Gomez Extension', 'birthday', 'PACKAGE 3', 'LUMPIA, FISH SWEET AND SOUR, PORK BBQ, SOTANGHON GUISADO, BUFFALO WINGS, VALENCIANA', 2999.00, 'Downpayment 50%', 'uploads/receipts/678298a5d736f.png', 'pending', '2025-01-11 16:13:25', '2025-01-11 16:13:25'),
+(9, 2, 'Charles Ivan', 'Colado', 'Monserate', '67879798798', 'cicmonserate.chmsu@gmail.com', '2025-01-17', '13:08:00', '#27\r\nJOVER ST', 'birthday', 'LECHON PACKAGE A (10-12 KGS)', 'LECHON WITH FREE SAUCE AND DINUGUAN', 7000.00, 'Downpayment 50%', 'uploads/receipts/6782a5aca140a.jpg', 'pending', '2025-01-11 17:09:00', '2025-01-11 17:09:00'),
+(11, 2, 'Peter Kent', 'Colado', 'Monserate', '09464519088', 'cicmonserate.chmsu@gmail.com', '2025-01-21', '02:44:00', 'rwqrewrwre', 'wedding', 'PACKAGE 2', 'LUMPIA, PORK BBQ, CORDON, BIHON GUISADO, FISH FILLET, CHOPSUEY', 2999.00, 'Downpayment 50%', 'uploads/receipts/6782bb85b8d0b.jpg', 'pending', '2025-01-11 18:42:13', '2025-01-11 18:43:07'),
+(12, 1, 'Jean Roshan', 'Magbanua', 'Urbano', '09291530238', 'jrmurbano.chmsu@gmail.com', '2025-01-18', '15:00:00', 'Figueroa St., Barangay III, Silay City', 'thanksgiving', 'PACKAGE 4', 'LUMPIA, FISH FILLET, FRIED WHOLE CHICKEN, PANCIT GUISADO, CHOPSUEY, BUFFALO WINGS', 2999.00, 'Downpayment 50%', 'uploads/receipts/6782bf69ed3aa.png', 'pending', '2025-01-11 18:58:49', '2025-01-11 18:59:28');
 
 --
 -- Indexes for dumped tables
@@ -129,6 +149,14 @@ INSERT INTO `reservations` (`reservation_id`, `customer_id`, `first_name`, `midd
 --
 ALTER TABLE `customers`
   ADD PRIMARY KEY (`customer_id`),
+  ADD UNIQUE KEY `email` (`email`);
+
+--
+-- Indexes for table `owners`
+--
+ALTER TABLE `owners`
+  ADD PRIMARY KEY (`owner_id`),
+  ADD UNIQUE KEY `username` (`username`),
   ADD UNIQUE KEY `email` (`email`);
 
 --
@@ -152,19 +180,25 @@ ALTER TABLE `reservations`
 -- AUTO_INCREMENT for table `customers`
 --
 ALTER TABLE `customers`
-  MODIFY `customer_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `customer_id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
+-- AUTO_INCREMENT for table `owners`
+--
+ALTER TABLE `owners`
+  MODIFY `owner_id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `packages`
 --
 ALTER TABLE `packages`
-  MODIFY `package_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `package_id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT for table `reservations`
 --
 ALTER TABLE `reservations`
-  MODIFY `reservation_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `reservation_id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- Constraints for dumped tables
