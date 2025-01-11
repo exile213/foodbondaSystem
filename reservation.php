@@ -37,7 +37,7 @@ if ($customer_id) {
             <i class="fas fa-arrow-left"></i> Back to Home
         </a>
 
-        <form class="reservation-form" action="process_reservation.php" method="POST" enctype="multipart/form-data"
+        <form class="reservation-form" action="<?php echo isset($update) ? 'process_update_reservation.php' : 'process_reservation.php'; ?>" method="POST" enctype="multipart/form-data"
             id="reservationForm">
             <h2>Make Your Reservation</h2>
 
@@ -106,6 +106,9 @@ if ($customer_id) {
                 </div>
             </div>
 
+            ...
+            <?php if (!isset($update)): ?>
+            <!-- Package Selection Section -->
             <div class="form-section">
                 <h3><i class="fas fa-box"></i> Package Selection</h3>
                 <div class="mb-3">
@@ -140,22 +143,19 @@ if ($customer_id) {
                         
                         foreach ($availableDishes as $dish) {
                             echo '<div class="col-md-4">
-                                                        <div class="form-check">
-                                                            <input class="form-check-input" type="checkbox" name="additionalDishes[]" 
-                                                                value="' .
+                                                                                <div class="form-check">
+                                                                                    <input class="form-check-input" type="checkbox" name="additionalDishes[]" value="' .
                                 htmlspecialchars($dish) .
                                 '" id="' .
                                 htmlspecialchars($dish) .
                                 '">
-                                                            <label class="form-check-label" for="' .
+                                                                                    <label class="form-check-label" for="' .
                                 htmlspecialchars($dish) .
-                                '">
-                                                                ' .
+                                '">' .
                                 htmlspecialchars($dish) .
-                                '
-                                                            </label>
-                                                        </div>
-                                                    </div>';
+                                '</label>
+                                                                                </div>
+                                                                            </div>';
                         }
                         ?>
                     </div>
@@ -171,35 +171,38 @@ if ($customer_id) {
                     <input type="text" class="form-control" id="priceDisplay" readonly>
                     <input type="hidden" id="price" name="price">
                 </div>
-                <div class="form-section">
-                    <h3><i class="fas fa-money-bill"></i> Payment Details</h3>
-                    <div class="mb-3">
-                        <label for="payment_method" class="form-label">Payment Method</label>
-                        <p><strong>Note:</strong> We are only using GCash as our mode of payment in reservations.</p>
-                        <select class="form-select" id="payment_method" name="payment_method" required
-                            onchange="toggleGcashUpload()">
-                            <option value="Downpayment 50%">Downpayment 50% (GCash)</option>
-                        </select>
-                    </div>
+            </div>
 
-                    <div id="gcashSection" class="gcash-section" style="display: none;">
-                        <h4>GCash Payment Details</h4>
-                        <p><strong>GCash Number:</strong> 09300712088</p>
-                        <p><strong>Account Name:</strong> JO*N PA*L B.</p>
-                        <img src="qr.jpg" alt="GCash QR Code" class="img-fluid">
-
-                        <div class="mb-3 mt-3">
-                            <label for="gcash_receipt" class="form-label">Upload GCash Receipt</label>
-                            <input type="file" class="form-control" id="gcash_receipt" name="gcash_receipt"
-                                accept=".jpg,.jpeg,.png,.gif">
-                            <p id="file-name" class="form-text"></p>
-                        </div>
-                    </div>
+            <!-- Payment Method Section -->
+            <div class="form-section">
+                <h3><i class="fas fa-money-bill"></i> Payment Details</h3>
+                <div class="mb-3">
+                    <label for="payment_method" class="form-label">Payment Method</label>
+                    <p><strong>Note:</strong> We are only using GCash as our mode of payment in reservations.</p>
+                    <select class="form-select" id="payment_method" name="payment_method" required
+                        onchange="toggleGcashUpload()">
+                        <option value="Downpayment 50%">Downpayment 50% (GCash)</option>
+                    </select>
                 </div>
 
-                <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-check-circle"></i> Submit Reservation
-                </button>
+                <div id="gcashSection" class="gcash-section" style="display: none;">
+                    <h4>GCash Payment Details</h4>
+                    <p><strong>GCash Number:</strong> 09300712088</p>
+                    <p><strong>Account Name:</strong> JO*N PA*L B.</p>
+                    <img src="qr.jpg" alt="GCash QR Code" class="img-fluid">
+
+                    <div class="mb-3 mt-3">
+                        <label for="gcash_receipt" class="form-label">Upload GCash Receipt</label>
+                        <input type="file" class="form-control" id="gcash_receipt" name="gcash_receipt"
+                            accept=".jpg,.jpeg,.png,.gif">
+                        <p id="file-name" class="form-text"></p>
+                    </div>
+                </div>
+            </div>
+            <?php endif; ?>
+            ...
+            <button type="submit" class="btn btn-primary"><?php echo isset($update) ? 'Update Reservation' : 'Submit Reservation'; ?></button>
+            ...
         </form>
     </div>
 
@@ -329,7 +332,8 @@ if ($customer_id) {
                         if (checkedBoxes.length > selectedPackage.additionalDishesLimit) {
                             this.checked = false;
                             alert(
-                                `You can only select up to ${selectedPackage.additionalDishesLimit} additional dishes for this package.`);
+                                `You can only select up to ${selectedPackage.additionalDishesLimit} additional dishes for this package.`
+                            );
                         }
                     }
                 });
