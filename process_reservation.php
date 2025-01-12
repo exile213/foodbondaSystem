@@ -100,7 +100,7 @@ try {
     $conn->begin_transaction();
 
     try {
-        // Insert into database using prepared statement
+        // Insert into reservations table
         $sql = "INSERT INTO reservations (
             customer_id, first_name, middle_name, last_name, contact, email,
             event_date, delivery_time, delivery_address, event_type,
@@ -121,6 +121,20 @@ try {
 
         // Get the new reservation_id
         $reservation_id = $stmt->insert_id;
+
+        // Insert into payment table
+        $payment_amount = $package_price / 2; // Assuming downpayment is 50%
+        $payment_sql = 'INSERT INTO payment (reservation_id, amount, payment_date, created_at) VALUES (?, ?, NOW(), NOW())';
+        $payment_stmt = $conn->prepare($payment_sql);
+        if (!$payment_stmt) {
+            throw new Exception('Failed to prepare payment statement: ' . $conn->error);
+        }
+
+        $payment_stmt->bind_param('id', $reservation_id, $payment_amount);
+
+        if (!$payment_stmt->execute()) {
+            throw new Exception('Failed to save payment: ' . $payment_stmt->error);
+        }
 
         // Commit transaction
         $conn->commit();

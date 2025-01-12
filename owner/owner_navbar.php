@@ -19,6 +19,9 @@
                 <li class="nav-item">
                     <a class="nav-link" href="owner_packages.php"><i class="fas fa-box"></i> Packages</a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="owner_packages.php"><i class="fas fa-box"></i> POS</a>
+                </li>
             </ul>
             <div class="auth-buttons">
                 <a href="owner_logout.php" class="btn btn-outline-light"><i class="fas fa-sign-out-alt"></i> Logout</a>
