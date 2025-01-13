@@ -1,7 +1,7 @@
 <nav class="navbar navbar-expand-lg">
     <div class="container">
-        <a class="navbar-brand" href="owner_dashboard.php">
-            <img src="../logo.jpg" alt="FOOD BONDA Logo" width="30" height="30" class="d-inline-block align-top">
+        <a class="navbar-brand" href="owner_history.php" <img src="../logo.jpg" alt="FOOD BONDA Logo" width="30"
+            height="30" class="d-inline-block align-top">
             FOOD BONDA
         </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Jan 13, 2025 at 07:37 AM
+-- Generation Time: Jan 13, 2025 at 08:22 AM
 -- Server version: 8.0.39
 -- PHP Version: 8.1.10
 
@@ -75,7 +75,8 @@ INSERT INTO `notifications` (`notification_id`, `customer_id`, `message`, `is_re
 (7, 2, 'Your reservation has been approved.', 1, '2025-01-12 15:14:34'),
 (8, 2, 'Your reservation has been canceled.', 0, '2025-01-13 04:33:56'),
 (9, 2, 'Your reservation has been approved.', 0, '2025-01-13 04:34:29'),
-(10, 2, 'Your reservation has been approved.', 0, '2025-01-13 06:08:55');
+(10, 2, 'Your reservation has been approved.', 0, '2025-01-13 06:08:55'),
+(11, 2, 'Your reservation has been approved.', 0, '2025-01-13 07:49:15');
 
 -- --------------------------------------------------------
 
@@ -153,7 +154,9 @@ CREATE TABLE `payment` (
 INSERT INTO `payment` (`payment_id`, `reservation_id`, `owner_id`, `amount`, `payment_date`, `created_at`) VALUES
 (3, 13, 3, 1499.50, '2025-01-13', '2025-01-13 07:27:00'),
 (4, 14, 3, 1499.50, '2025-01-13', '2025-01-13 07:30:07'),
-(5, 13, 3, 1499.50, '2025-01-13', '2025-01-13 07:33:15');
+(5, 13, 3, 1499.50, '2025-01-13', '2025-01-13 07:33:15'),
+(6, 14, 3, 1499.50, '2025-01-13', '2025-01-13 07:44:51'),
+(7, 15, 3, 3500.00, '2025-01-13', '2025-01-13 07:52:13');
 
 -- --------------------------------------------------------
 
@@ -164,6 +167,7 @@ INSERT INTO `payment` (`payment_id`, `reservation_id`, `owner_id`, `amount`, `pa
 CREATE TABLE `reservations` (
   `reservation_id` int NOT NULL,
   `customer_id` int NOT NULL,
+  `package_id` int DEFAULT NULL,
   `first_name` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
   `middle_name` varchar(50) COLLATE utf8mb4_general_ci DEFAULT NULL,
   `last_name` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
@@ -187,10 +191,10 @@ CREATE TABLE `reservations` (
 -- Dumping data for table `reservations`
 --
 
-INSERT INTO `reservations` (`reservation_id`, `customer_id`, `first_name`, `middle_name`, `last_name`, `contact`, `email`, `event_date`, `delivery_time`, `delivery_address`, `event_type`, `package_name`, `selected_dishes`, `package_price`, `payment_method`, `gcash_receipt_path`, `status`, `created_at`, `updated_at`) VALUES
-(13, 2, 'Charles Ivan', 'Colado', 'Monserate', '09464519088', 'cicmonserate.chmsu@gmail.com', '2025-01-16', '22:13:00', '#27\r\nJOVER ST', 'christening', 'PACKAGE 2', 'LUMPIA, PORK BBQ, CORDON, BIHON GUISADO, FISH FILLET, CHOPSUEY', 2999.00, 'Downpayment 50%', 'uploads/receipts/6783cdb9a30ab.png', 'completed', '2025-01-12 14:12:09', '2025-01-13 07:33:17'),
-(14, 2, 'Charles Ivan', 'Colado', 'Monserate', '38247924793', 'cicmonserate.chmsu@gmail.com', '2025-01-17', '14:09:00', 'eiewouejf', 'thanksgiving', 'PACKAGE 2', 'LUMPIA, PORK BBQ, CORDON, BIHON GUISADO, FISH FILLET, CHOPSUEY', 2999.00, 'Downpayment 50%', 'uploads/receipts/6784ade6beaa7.png', 'approved', '2025-01-13 06:08:38', '2025-01-13 06:08:55'),
-(15, 2, 'Charles Ivan', 'Colado', 'Monserate', '23424234223', 'cicmonserate.chmsu@gmail.com', '2025-02-01', '16:11:00', 'wqdqwrdqwqdwq', 'thanksgiving', 'LECHON PACKAGE A (10-12 KGS)', 'LECHON WITH FREE SAUCE AND DINUGUAN', 7000.00, 'Downpayment 50%', 'uploads/receipts/6784aeb377228.png', 'pending', '2025-01-13 06:12:03', '2025-01-13 06:12:03');
+INSERT INTO `reservations` (`reservation_id`, `customer_id`, `package_id`, `first_name`, `middle_name`, `last_name`, `contact`, `email`, `event_date`, `delivery_time`, `delivery_address`, `event_type`, `package_name`, `selected_dishes`, `package_price`, `payment_method`, `gcash_receipt_path`, `status`, `created_at`, `updated_at`) VALUES
+(13, 2, NULL, 'Charles Ivan', 'Colado', 'Monserate', '09464519088', 'cicmonserate.chmsu@gmail.com', '2025-01-16', '22:13:00', '#27\r\nJOVER ST', 'christening', 'PACKAGE 2', 'LUMPIA, PORK BBQ, CORDON, BIHON GUISADO, FISH FILLET, CHOPSUEY', 2999.00, 'Downpayment 50%', 'uploads/receipts/6783cdb9a30ab.png', 'completed', '2025-01-12 14:12:09', '2025-01-13 07:33:17'),
+(14, 2, NULL, 'Charles Ivan', 'Colado', 'Monserate', '38247924793', 'cicmonserate.chmsu@gmail.com', '2025-01-17', '14:09:00', 'eiewouejf', 'thanksgiving', 'PACKAGE 2', 'LUMPIA, PORK BBQ, CORDON, BIHON GUISADO, FISH FILLET, CHOPSUEY', 2999.00, 'Downpayment 50%', 'uploads/receipts/6784ade6beaa7.png', 'completed', '2025-01-13 06:08:38', '2025-01-13 07:44:52'),
+(15, 2, NULL, 'Charles Ivan', 'Colado', 'Monserate', '23424234223', 'cicmonserate.chmsu@gmail.com', '2025-02-01', '16:11:00', 'wqdqwrdqwqdwq', 'thanksgiving', 'LECHON PACKAGE A (10-12 KGS)', 'LECHON WITH FREE SAUCE AND DINUGUAN', 7000.00, 'Downpayment 50%', 'uploads/receipts/6784aeb377228.png', 'completed', '2025-01-13 06:12:03', '2025-01-13 07:52:14');
 
 --
 -- Indexes for dumped tables
@@ -237,7 +241,8 @@ ALTER TABLE `payment`
 --
 ALTER TABLE `reservations`
   ADD PRIMARY KEY (`reservation_id`),
-  ADD KEY `customer_id` (`customer_id`);
+  ADD KEY `customer_id` (`customer_id`),
+  ADD KEY `package_id` (`package_id`);
 
 --
 -- AUTO_INCREMENT for dumped tables
@@ -253,7 +258,7 @@ ALTER TABLE `customers`
 -- AUTO_INCREMENT for table `notifications`
 --
 ALTER TABLE `notifications`
-  MODIFY `notification_id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `notification_id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT for table `owners`
@@ -271,7 +276,7 @@ ALTER TABLE `packages`
 -- AUTO_INCREMENT for table `payment`
 --
 ALTER TABLE `payment`
-  MODIFY `payment_id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `payment_id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `reservations`
@@ -300,6 +305,7 @@ ALTER TABLE `payment`
 -- Constraints for table `reservations`
 --
 ALTER TABLE `reservations`
+  ADD CONSTRAINT `package_foreign` FOREIGN KEY (`package_id`) REFERENCES `packages` (`package_id`),
   ADD CONSTRAINT `reservations_ibfk_1` FOREIGN KEY (`customer_id`) REFERENCES `customers` (`customer_id`);
 COMMIT;
 
