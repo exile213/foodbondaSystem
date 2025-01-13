@@ -52,7 +52,10 @@ $update_stmt->execute();
                 <p><strong>Contact:</strong> <?php echo htmlspecialchars($reservation['contact']); ?></p>
                 <p><strong>Package:</strong> <?php echo htmlspecialchars($reservation['package_name']); ?></p>
                 <p><strong>Processed By:</strong> <?php echo htmlspecialchars($payment['cashier_name']); ?></p>
-                <p><strong>Amount Paid:</strong> ₱<?php echo number_format($payment['amount'], 2); ?></p>
+                <p><strong>Total Price:</strong> ₱<?php echo number_format($payment['total_price'], 2); ?></p>
+                <p><strong>Down Payment:</strong> ₱<?php echo number_format($payment['down_payment'], 2); ?></p>
+                <p><strong>Amount Paid:</strong> ₱<?php echo number_format($payment['amount_paid'], 2); ?></p>
+                <p><strong>Leftover Balance:</strong> ₱<?php echo number_format($payment['leftover_balance'], 2); ?></p>
                 <p><strong>Payment Date:</strong> <?php echo htmlspecialchars($payment['payment_date']); ?></p>
                 <div class="mt-4">
                     <a href="owner_dashboard.php" class="btn btn-primary">Back to Dashboard</a>

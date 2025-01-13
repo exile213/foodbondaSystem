@@ -28,15 +28,15 @@ try {
     $email = filter_var($_POST['email'], FILTER_VALIDATE_EMAIL);
     $event_date = htmlspecialchars(trim($_POST['event_date']));
     $delivery_time = htmlspecialchars(trim($_POST['delivery_time']));
-    $delivery_address = htmlspecialchars(trim($_POST['address']));
-    $event_type = htmlspecialchars(trim($_POST['event']));
-    $package_name = htmlspecialchars(trim($_POST['package']));
-    $selected_dishes = htmlspecialchars(trim($_POST['selectedDishes']));
+    $delivery_address = htmlspecialchars(trim($_POST['delivery_address']));
+    $event_type = htmlspecialchars(trim($_POST['event_type']));
+    $package_id = intval($_POST['package_id']);
+    $selected_dishes = htmlspecialchars(trim($_POST['selected_dishes']));
     $package_price = filter_var($_POST['price'], FILTER_VALIDATE_FLOAT);
     $payment_method = htmlspecialchars(trim($_POST['payment_method']));
 
     // Validate required fields
-    if (!$first_name || !$last_name || !$contact || !$email || !$event_date || !$delivery_time || !$delivery_address || !$event_type || !$package_name || !$package_price || !$payment_method) {
+    if (!$first_name || !$last_name || !$contact || !$email || !$event_date || !$delivery_time || !$delivery_address || !$event_type || !$package_id || !$package_price || !$payment_method) {
         throw new Exception('All required fields must be filled');
     }
 
@@ -101,32 +101,29 @@ try {
 
     try {
         // Insert into reservations table
+        $status = 'pending';
         $sql = "INSERT INTO reservations (
             customer_id, first_name, middle_name, last_name, contact, email,
             event_date, delivery_time, delivery_address, event_type,
-            package_name, selected_dishes, package_price, payment_method,
-            gcash_receipt_path, created_at
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())";
+            package_id, selected_dishes, gcash_receipt_path, status, created_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())";
 
         $stmt = $conn->prepare($sql);
         if (!$stmt) {
             throw new Exception('Failed to prepare statement: ' . $conn->error);
         }
 
-        $stmt->bind_param('isssssssssssiss', $customer_id, $first_name, $middle_name, $last_name, $contact, $email, $event_date, $delivery_time, $delivery_address, $event_type, $package_name, $selected_dishes, $package_price, $payment_method, $gcash_receipt_path);
+        $stmt->bind_param('isssssssssiiss', $customer_id, $first_name, $middle_name, $last_name, $contact, $email, $event_date, $delivery_time, $delivery_address, $event_type, $package_id, $selected_dishes, $gcash_receipt_path, $status);
 
         if (!$stmt->execute()) {
             throw new Exception('Failed to save reservation: ' . $stmt->error);
         }
 
-        // Get the new reservation_id
-        $reservation_id = $stmt->insert_id;
-
         // Commit transaction
         $conn->commit();
 
         $_SESSION['reservation_success'] = 'Your reservation has been successfully submitted!';
-        header("Location: ticket.php?id=$reservation_id");
+        header('Location: ticket.php?id=' . $stmt->insert_id);
         exit();
     } catch (Exception $e) {
         // Rollback transaction on error

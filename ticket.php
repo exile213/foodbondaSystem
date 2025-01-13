@@ -3,28 +3,24 @@ require_once 'db_conn.php';
 require_once 'check_auth.php';
 
 // Check if the reservation ID is set and is a valid number
-/*
-if (!isset($_GET['id']) && !is_numeric($_GET['id'])) {
-    header("Location: customer_dashboard.php");
-    exit();
-}*/
-
 $id = intval($_GET['id']);
 
 // Fetch reservation details
-$sql = 'SELECT * FROM reservations WHERE reservation_id = ? AND customer_id = ?';
+$sql = 'SELECT r.*, pk.package_name, pk.price AS package_price FROM reservations r JOIN packages pk ON r.package_id = pk.package_id WHERE r.reservation_id = ? AND r.customer_id = ?';
 $stmt = $conn->prepare($sql);
 $stmt->bind_param('ii', $id, $_SESSION['customer_id']);
 $stmt->execute();
 $result = $stmt->get_result();
 
-/*
 if ($result->num_rows === 0) {
-    header("Location: customer_dashboard.php");
+    header('Location: customer_dashboard.php');
     exit();
-}*/
+}
 
 $reservation = $result->fetch_assoc();
+
+// Calculate downpayment as half of the package price
+$downpayment = $reservation['package_price'] / 2;
 ?>
 
 <!DOCTYPE html>
@@ -33,8 +29,7 @@ $reservation = $result->fetch_assoc();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reservation Receipt</title>
-    <link rel="stylesheet" href="style3.css">
+    <title>Reservation Ticket</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="main.css">
@@ -64,10 +59,9 @@ $reservation = $result->fetch_assoc();
                 <p><strong>Address:</strong> <?php echo htmlspecialchars($reservation['delivery_address']); ?></p>
                 <p><strong>Contact:</strong> <?php echo htmlspecialchars($reservation['contact']); ?></p>
                 <p><strong>Package:</strong> <?php echo htmlspecialchars($reservation['package_name']); ?></p>
-                <p><strong>Dishes:</strong> <?php echo htmlspecialchars($reservation['selected_dishes']); ?></p>
-                <p><strong>Price:</strong> ₱<?php echo number_format($reservation['package_price'], 2); ?></p>
-                <p><strong>Event:</strong> <?php echo htmlspecialchars($reservation['event_type']); ?></p>
-                <p><strong>Payment Method:</strong> <?php echo htmlspecialchars($reservation['payment_method']); ?></p>
+                <p><strong>Selected Dishes:</strong> <?php echo htmlspecialchars($reservation['selected_dishes']); ?></p>
+                <p><strong>Total Price:</strong> ₱<?php echo number_format($reservation['package_price'], 2); ?></p>
+                <p><strong>Downpayment:</strong> ₱<?php echo number_format($downpayment, 2); ?></p>
                 <p><strong>Status:</strong> <?php echo ucfirst(htmlspecialchars($reservation['status'])); ?></p>
 
                 <?php if (!empty($reservation['gcash_receipt_path'])): ?>
@@ -92,7 +86,6 @@ $reservation = $result->fetch_assoc();
                 </div>
             </div>
         </div>
-    </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>

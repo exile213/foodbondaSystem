@@ -14,7 +14,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $delivery_address = $_POST['address'];
     $event_type = $_POST['event'];
 
-    $sql = 'UPDATE reservations SET first_name = ?, middle_name = ?, last_name = ?, contact = ?, email = ?, event_date = ?, delivery_time = ?, delivery_address = ?, event_type = ? WHERE reservation_id = ?';
+    // Update only the basic information and the event details
+    $sql = 'UPDATE reservations SET first_name = ?, middle_name = ?, last_name = ?, contact = ?, email = ?, event_date = ?, delivery_time = ?, delivery_address = ?, event_type = ?, updated_at = NOW() WHERE reservation_id = ?';
     $stmt = $conn->prepare($sql);
     $stmt->bind_param('sssssssssi', $first_name, $middle_name, $last_name, $contact, $email, $event_date, $delivery_time, $delivery_address, $event_type, $reservation_id);
 

@@ -6,7 +6,7 @@ require_once 'owner_session.php';
 $owner_id = $_SESSION['owner_id'];
 
 // Fetch reservation history with status 'completed'
-$sql = 'SELECT r.reservation_id, r.first_name, r.middle_name, r.last_name, r.event_date, r.delivery_time, r.package_name, r.event_type, r.status, MAX(p.amount) AS price, SUM(p.amount) AS paid_amount, o.username AS processed_by 
+$sql = 'SELECT r.reservation_id, r.first_name, r.middle_name, r.last_name, r.event_date, r.delivery_time, r.package_name, r.event_type, r.status, MAX(p.total_price) AS price, SUM(p.amount_paid) AS paid_amount, o.username AS processed_by 
         FROM reservations r 
         LEFT JOIN payment p ON r.reservation_id = p.reservation_id 
         LEFT JOIN owners o ON p.owner_id = o.owner_id 
@@ -56,7 +56,7 @@ $reservations = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
                     <tbody>
                         <?php foreach ($reservations as $reservation): ?>
                         <?php
-                        $downpayment = $reservation['price'] * 0.5; // Assuming 30% downpayment
+                        $downpayment = $reservation['price'] * 0.5; // Assuming 50% downpayment
                         $change = $reservation['paid_amount'] - $reservation['price'];
                         ?>
                         <tr>

@@ -10,7 +10,10 @@ if (!isset($_SESSION['owner_id'])) {
 $owner_id = $_SESSION['owner_id']; // Get the owner ID from the session
 
 // Fetch approved reservations from the database
-$sql = "SELECT reservation_id FROM reservations WHERE status = 'approved'";
+$sql = "SELECT r.reservation_id, r.first_name, r.middle_name, r.last_name, r.event_date, r.delivery_time, r.delivery_address, r.contact, pk.package_name, pk.price AS package_price
+        FROM reservations r
+        JOIN packages pk ON r.package_id = pk.package_id
+        WHERE r.status = 'approved'";
 $result = $conn->query($sql);
 $reservations = [];
 

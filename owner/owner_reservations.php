@@ -8,7 +8,9 @@ if (!isset($_SESSION['owner_id'])) {
 }
 
 // Fetch reservations from the database
-$sql = 'SELECT * FROM reservations';
+$sql = 'SELECT r.*, p.amount_paid, p.payment_method 
+        FROM reservations r 
+        LEFT JOIN payment p ON r.reservation_id = p.reservation_id';
 $result = $conn->query($sql);
 $reservations = [];
 
@@ -58,13 +60,12 @@ if ($result->num_rows > 0) {
                     <th>Name</th>
                     <th>Event Date</th>
                     <th>Delivery Time</th>
-                    <th>Address</th>
-                    <th>Contact</th>
                     <th>Package</th>
                     <th>Price</th>
+                    <th>Paid Amount</th>
                     <th>Event</th>
-                    <th>Payment Method</th>
                     <th>Status</th>
+                    <th>Processed By</th>
                     <th>Actions</th>
                 </tr>
             </thead>
@@ -75,13 +76,12 @@ if ($result->num_rows > 0) {
                     <td><?php echo htmlspecialchars($reservation['first_name'] . ' ' . $reservation['middle_name'] . ' ' . $reservation['last_name']); ?></td>
                     <td><?php echo htmlspecialchars($reservation['event_date']); ?></td>
                     <td><?php echo htmlspecialchars($reservation['delivery_time']); ?></td>
-                    <td><?php echo htmlspecialchars($reservation['delivery_address']); ?></td>
-                    <td><?php echo htmlspecialchars($reservation['contact']); ?></td>
                     <td><?php echo htmlspecialchars($reservation['package_name']); ?></td>
-                    <td>₱<?php echo number_format($reservation['package_price'], 2); ?></td>
+                    <td>₱<?php echo number_format($reservation['price'], 2); ?></td>
+                    <td>₱<?php echo number_format($reservation['paid_amount'], 2); ?></td>
                     <td><?php echo htmlspecialchars($reservation['event_type']); ?></td>
-                    <td><?php echo htmlspecialchars($reservation['payment_method']); ?></td>
                     <td><?php echo ucfirst(htmlspecialchars($reservation['status'])); ?></td>
+                    <td><?php echo htmlspecialchars($reservation['processed_by']); ?></td>
                     <td>
                         <?php if (!empty($reservation['gcash_receipt_path'])): ?>
                         <a href="../<?php echo htmlspecialchars($reservation['gcash_receipt_path']); ?>" target="_blank" class="btn btn-info btn-sm"><i
@@ -93,8 +93,8 @@ if ($result->num_rows > 0) {
                         <a href="approve_reservation.php?id=<?php echo $reservation['reservation_id']; ?>"
                             class="btn btn-success btn-sm action-button"><i class="fas fa-check"></i> Approve</a>
                         <?php endif; ?>
-                        <?php if ($reservation['status'] === 'canceled'): ?>
-                        <button class="btn btn-danger btn-sm" disabled><i class="fas fa-times"></i> Canceled</button>
+                        <?php if ($reservation['status'] === 'cancelled'): ?>
+                        <button class="btn btn-danger btn-sm" disabled><i class="fas fa-times"></i> Cancelled</button>
                         <?php else: ?>
                         <a href="cancel_reservation.php?id=<?php echo $reservation['reservation_id']; ?>"
                             class="btn btn-danger btn-sm action-button"><i class="fas fa-times"></i> Cancel</a>

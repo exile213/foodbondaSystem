@@ -1,28 +1,27 @@
 <?php
 require_once '../db_conn.php';
 
-// Enable error reporting for debugging
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
+if (!isset($_GET['id'])) {
+    echo json_encode(['error' => 'Reservation ID is required']);
+    exit();
+}
 
 $reservation_id = intval($_GET['id']);
 
-$response = [];
-
 // Fetch reservation details
-$sql = 'SELECT * FROM reservations WHERE reservation_id = ?';
+$sql = 'SELECT r.reservation_id, r.first_name, r.middle_name, r.last_name, r.event_date, r.delivery_time, r.delivery_address, r.contact, pk.package_name, pk.price AS package_price
+        FROM reservations r
+        JOIN packages pk ON r.package_id = pk.package_id
+        WHERE r.reservation_id = ?';
 $stmt = $conn->prepare($sql);
 $stmt->bind_param('i', $reservation_id);
 $stmt->execute();
-$result = $stmt->get_result();
+$reservation = $stmt->get_result()->fetch_assoc();
 
-if ($result->num_rows > 0) {
-    $response = $result->fetch_assoc();
-} else {
-    $response['error'] = 'Reservation not found.';
+if (!$reservation) {
+    echo json_encode(['error' => 'Reservation not found']);
+    exit();
 }
 
-header('Content-Type: application/json');
-echo json_encode($response);
+echo json_encode($reservation);
 ?>

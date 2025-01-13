@@ -62,14 +62,21 @@ $customer = $stmt->get_result()->fetch_assoc();
                                     <tr>
                                         <th>Date</th>
                                         <th>Package</th>
+                                        <th>Price</th>
                                         <th>Status</th>
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <?php
-                                    // Fixed query to use customer_id instead of user_id
-                                    $stmt = $conn->prepare("SELECT * FROM reservations WHERE customer_id = ? ORDER BY created_at DESC LIMIT 5");
+                                    // Fetch recent reservations for the customer
+                                    $stmt = $conn->prepare("SELECT r.reservation_id, r.event_date, r.status, p.amount_paid, pk.package_name, pk.price 
+                                                            FROM reservations r 
+                                                            LEFT JOIN payment p ON r.reservation_id = p.reservation_id 
+                                                            LEFT JOIN packages pk ON r.package_id = pk.package_id
+                                                            WHERE r.customer_id = ? 
+                                                            ORDER BY r.created_at DESC 
+                                                            LIMIT 5");
                                     $stmt->bind_param("i", $customer_id);
                                     $stmt->execute();
                                     $reservations = $stmt->get_result();
@@ -80,8 +87,9 @@ $customer = $stmt->get_result()->fetch_assoc();
                                     <tr>
                                         <td><?php echo htmlspecialchars($reservation['event_date']); ?></td>
                                         <td><?php echo htmlspecialchars($reservation['package_name']); ?></td>
+                                        <td>₱<?php echo number_format($reservation['price'], 2); ?></td>
                                         <td>
-                                            <span class="badge bg-<?php echo $reservation['status'] === 'confirmed' ? 'success' : 'warning'; ?>">
+                                            <span class="badge bg-<?php echo $reservation['status'] === 'completed' ? 'success' : ($reservation['status'] === 'cancelled' ? 'danger' : 'warning'); ?>">
                                                 <?php echo ucfirst(htmlspecialchars($reservation['status'])); ?>
                                             </span>
                                         </td>
@@ -96,7 +104,7 @@ $customer = $stmt->get_result()->fetch_assoc();
                                     else:
                                     ?>
                                     <tr>
-                                        <td colspan="4" class="text-center">No reservations found</td>
+                                        <td colspan="5" class="text-center">No reservations found</td>
                                     </tr>
                                     <?php endif; ?>
                                 </tbody>

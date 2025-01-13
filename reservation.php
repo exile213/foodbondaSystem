@@ -12,7 +12,7 @@ if ($customer_id) {
 $selected_package = isset($_GET['package']) ? $_GET['package'] : '';
 
 // Fetch packages from the database
-$sql = 'SELECT package_name, price, included_dishes, additional_dishes_limit FROM packages';
+$sql = 'SELECT package_id, package_name, price, included_dishes, additional_dishes_limit FROM packages';
 $result = $conn->query($sql);
 $packages = [];
 
@@ -44,9 +44,9 @@ if ($result->num_rows > 0) {
             <i class="fas fa-arrow-left"></i> Back to Home
         </a>
 
-        <form class="reservation-form" action="<?php echo isset($update) ? 'process_update_reservation.php' : 'process_reservation.php'; ?>" method="POST" enctype="multipart/form-data"
+        <form class="reservation-form" action="process_reservation.php" method="POST" enctype="multipart/form-data"
             id="reservationForm">
-            <h2><?php echo isset($update) ? 'Update Your Reservation' : 'Make Your Reservation'; ?></h2>
+            <h2>Make Your Reservation</h2>
 
             <!-- Personal Information Section -->
             <div class="form-section">
@@ -97,12 +97,12 @@ if ($result->num_rows > 0) {
                     </div>
                 </div>
                 <div class="mb-3">
-                    <label for="address" class="form-label">Delivery Address</label>
-                    <textarea class="form-control" id="address" name="address" rows="2" required></textarea>
+                    <label for="delivery_address" class="form-label">Delivery Address</label>
+                    <textarea class="form-control" id="delivery_address" name="delivery_address" rows="2" required></textarea>
                 </div>
                 <div class="mb-3">
-                    <label for="event" class="form-label">Event Type</label>
-                    <select class="form-select" id="event" name="event" required>
+                    <label for="event_type" class="form-label">Event Type</label>
+                    <select class="form-select" id="event_type" name="event_type" required>
                         <option value="">Select event type</option>
                         <option value="wedding">Wedding</option>
                         <option value="birthday">Birthday</option>
@@ -113,24 +113,23 @@ if ($result->num_rows > 0) {
                 </div>
             </div>
 
-            <?php if (!isset($update)): ?>
             <!-- Package Selection Section -->
             <div class="form-section">
                 <h3><i class="fas fa-box"></i> Package Selection</h3>
                 <div class="mb-3">
-                    <label for="package" class="form-label">Choose Package</label>
-                    <select class="form-select" id="package" name="package" required onchange="updateDishLimit()">
+                    <label for="package_id" class="form-label">Choose Package</label>
+                    <select class="form-select" id="package_id" name="package_id" required>
                         <option value="">Select a package</option>
                         <?php foreach ($packages as $package): ?>
-                        <option value="<?php echo htmlspecialchars($package['package_name']); ?>" <?php echo $selected_package === $package['package_name'] ? 'selected' : ''; ?>>
-                            <?php echo htmlspecialchars($package['package_name']); ?>
+                        <option value="<?php echo $package['package_id']; ?>" data-price="<?php echo $package['price']; ?>">
+                            <?php echo htmlspecialchars($package['package_name']); ?> - ₱<?php echo number_format($package['price'], 2); ?>
                         </option>
                         <?php endforeach; ?>
                     </select>
                 </div>
                 <div class="mb-3">
-                    <label for="selectedDishes" class="form-label">Included Dishes</label>
-                    <textarea class="form-control" id="selectedDishes" name="selectedDishes" readonly></textarea>
+                    <label for="selected_dishes" class="form-label">Included Dishes</label>
+                    <textarea class="form-control" id="selected_dishes" name="selected_dishes" readonly></textarea>
                 </div>
                 <div id="additionalDishes" style="display: none;" class="mb-3">
                     <label class="form-label">Additional Dishes</label>
@@ -138,22 +137,21 @@ if ($result->num_rows > 0) {
                     <div class="row g-3">
                         <?php
                         $availableDishes = ['Lumpia shanghai-6opcs', 'Lumpia veggies-6opc', 'Fish fillet -2kls', 'Fish sweet and sour', 'Chopsuey', 'Whole chicken estofado', 'Chicken sisig', 'Chicken afritada', 'Buffalo wings', 'Chicken pastel', 'Chicken Curry', 'Pork menudo', 'Pork siomai', 'Pancit', 'Bihon', 'Spaghetti', 'Carbonara', 'Valenciana'];
-                        
                         foreach ($availableDishes as $dish) {
                             echo '<div class="col-md-4">
-                                                                                                                                                                                                                                                        <div class="form-check">
-                                                                                                                                                                                                                                                            <input class="form-check-input" type="checkbox" name="additionalDishes[]" value="' .
+                                                                                    <div class="form-check">
+                                                                                        <input class="form-check-input" type="checkbox" name="additionalDishes[]" value="' .
                                 htmlspecialchars($dish) .
                                 '" id="' .
                                 htmlspecialchars($dish) .
                                 '">
-                                                                                                                                                                                                                                                            <label class="form-check-label" for="' .
+                                                                                        <label class="form-check-label" for="' .
                                 htmlspecialchars($dish) .
                                 '">' .
                                 htmlspecialchars($dish) .
                                 '</label>
-                                                                                                                                                                                                                                                        </div>
-                                                                                                                                                                                                                                                    </div>';
+                                                                                    </div>
+                                                                                </div>';
                         }
                         ?>
                     </div>
@@ -193,18 +191,17 @@ if ($result->num_rows > 0) {
                     </div>
                 </div>
             </div>
-            <?php endif; ?>
 
-            <button type="submit" class="btn btn-primary"><?php echo isset($update) ? 'Update Reservation' : 'Submit Reservation'; ?></button>
+            <button type="submit" class="btn btn-primary">Submit Reservation</button>
         </form>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const packageSelect = document.getElementById('package');
+            const packageSelect = document.getElementById('package_id');
             const origPrice = document.getElementById('originalPrice');
-            const selectedDishesTextarea = document.getElementById('selectedDishes');
+            const selectedDishesTextarea = document.getElementById('selected_dishes');
             const priceInput = document.getElementById('price');
             const priceDisplay = document.getElementById('priceDisplay');
             const paymentMethodSelect = document.getElementById('payment_method');
@@ -214,7 +211,7 @@ if ($result->num_rows > 0) {
             const packages = <?php echo json_encode($packages); ?>;
 
             function updatePackageInfo() {
-                const selectedPackage = packages.find(pkg => pkg.package_name === packageSelect.value);
+                const selectedPackage = packages.find(pkg => pkg.package_id == packageSelect.value);
                 if (!selectedPackage) {
                     selectedDishesTextarea.value = '';
                     priceDisplay.value = '';
@@ -236,7 +233,6 @@ if ($result->num_rows > 0) {
                 if (paymentMethodSelect.value === 'Downpayment 50%') {
                     displayPrice = displayPrice / 2;
                 }
-
                 priceDisplay.value = '₱' + displayPrice.toFixed(2);
                 priceInput.value = selectedPackage.price.toFixed(2);
 
@@ -262,7 +258,7 @@ if ($result->num_rows > 0) {
             const additionalDishCheckboxes = document.querySelectorAll('#additionalDishes input[type="checkbox"]');
             additionalDishCheckboxes.forEach(checkbox => {
                 checkbox.addEventListener('change', function() {
-                    const selectedPackage = packages.find(pkg => pkg.package_name === packageSelect
+                    const selectedPackage = packages.find(pkg => pkg.package_id == packageSelect
                         .value);
                     if (selectedPackage && selectedPackage.additional_dishes_limit) {
                         const checkedBoxes = document.querySelectorAll(
@@ -271,18 +267,12 @@ if ($result->num_rows > 0) {
                             this.checked = false;
                             alert(
                                 `You can only select up to ${selectedPackage.additional_dishes_limit} additional dishes for this package.`
-                            );
+                                );
                         }
                     }
                 });
             });
         });
-
-        function updateDishLimit() {
-            const package = document.getElementById('package').value;
-            const limitText = document.getElementById('dishLimit');
-            limitText.textContent = 'Please select up to X dishes for this package';
-        }
 
         function toggleGcashUpload() {
             const paymentMethod = document.getElementById('payment_method').value;
@@ -311,7 +301,6 @@ if ($result->num_rows > 0) {
         document.getElementById('gcash_receipt').addEventListener('change', updateFileName);
 
         // Initialize form state
-        updateDishLimit();
         toggleGcashUpload();
     </script>
 </body>
