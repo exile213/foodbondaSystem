@@ -18,7 +18,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($owner) {
         if (password_verify($password, $owner['password'])) {
             $_SESSION['owner_id'] = $owner['owner_id'];
-            header('Location: owner_dashboard.php');
+            header('Location: owner_history.php');
             exit();
         } else {
             $_SESSION['signin_error'] = 'Invalid username or password.';
