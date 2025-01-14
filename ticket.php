@@ -41,15 +41,44 @@ $downpayment = $reservation['package_price'] / 2;
             flex-direction: column;
             text-align: center;
         }
+
+        .card {
+            border: black 1px solid;
+            width: 8.5in;
+            height: 11in;
+            padding: 1in;
+        }
+
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+
+            .printableArea,
+            .printableArea * {
+                visibility: visible;
+            }
+
+            .printableArea {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+            }
+
+            .btn {
+                display: none;
+            }
+        }
     </style>
 </head>
 
 <body>
     <?php include 'navbar.php'; ?>
 
-    <div class="container mt-5 center-content">
-        <h1 class="mb-4">Reservation Ticket</h1>
+    <div class="container mt-5 center-content printableArea">
         <div class="card">
+            <h1 class="mb-1">Reservation Ticket</h1>
             <div class="card-body">
                 <h2 class="card-title">Thank you for your reservation!</h2>
                 <p><strong>Reservation ID:</strong> <?php echo htmlspecialchars($reservation['reservation_id']); ?></p>
@@ -73,16 +102,7 @@ $downpayment = $reservation['package_price'] / 2;
 
                 <div class="mt-4">
                     <a href="customer_dashboard.php" class="btn btn-primary">Back to Dashboard</a>
-                    <?php if ($reservation['status'] === 'pending'): ?>
-                    <a href="update_reservation.php?id=<?php echo $id; ?>" class="btn btn-secondary">Update
-                        Reservation</a>
-                    <form action="cancel_reservation.php" method="POST" style="display:inline;">
-                        <input type="hidden" name="reservation_id" value="<?php echo $reservation['reservation_id']; ?>">
-                        <button type="submit" class="btn btn-danger"
-                            onclick="return confirm('Are you sure you want to cancel this reservation?');">Cancel
-                            Reservation</button>
-                    </form>
-                    <?php endif; ?>
+                    <button onclick="window.print()" class="btn btn-secondary">Print Ticket</button>
                 </div>
             </div>
         </div>

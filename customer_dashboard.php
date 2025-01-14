@@ -17,32 +17,19 @@ $customer = $stmt->get_result()->fetch_assoc();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - Food Bonda</title>
-    <link rel="icon" type="image/x-icon" href="logo.jpg">
+    <title>Customer Dashboard</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
-    <link href="main.css" rel="stylesheet">
+    <link rel="stylesheet" href="main.css">
 </head>
 
 <body>
     <?php include 'navbar.php'; ?>
-
-    <div class="container py-4">
-        <?php if (isset($_SESSION['success_message'])): ?>
-        <div class="alert alert-success alert-dismissible fade show mb-4" role="alert">
-            <?php
-            echo htmlspecialchars($_SESSION['success_message']);
-            unset($_SESSION['success_message']);
-            ?>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-        <?php endif; ?>
-
+    <div class="container mt-5">
         <div class="row">
-            <div class="col-md-4 mb-4">
-                <div class="card">
-                    <div class="card-body text-center">
+            <div class="col-md-4">
+                <div class="card text-center">
+                    <div class="card-body">
                         <i class="fas fa-user-circle fa-4x mb-3"></i>
                         <h5 class="card-title"><?php echo htmlspecialchars($customer['first_name'] . ' ' . $customer['last_name']); ?></h5>
                         <p class="card-text text-muted"><?php echo htmlspecialchars($customer['email']); ?></p>
@@ -69,12 +56,12 @@ $customer = $stmt->get_result()->fetch_assoc();
                                 </thead>
                                 <tbody>
                                     <?php
-                                    // Fetch recent reservations for the customer
+                                    // Fetch recent reservations for the customer that are not completed
                                     $stmt = $conn->prepare("SELECT r.reservation_id, r.event_date, r.status, p.amount_paid, pk.package_name, pk.price 
                                                             FROM reservations r 
                                                             LEFT JOIN payment p ON r.reservation_id = p.reservation_id 
                                                             LEFT JOIN packages pk ON r.package_id = pk.package_id
-                                                            WHERE r.customer_id = ? 
+                                                            WHERE r.customer_id = ? AND r.status != 'completed'
                                                             ORDER BY r.created_at DESC 
                                                             LIMIT 5");
                                     $stmt->bind_param("i", $customer_id);
@@ -89,7 +76,83 @@ $customer = $stmt->get_result()->fetch_assoc();
                                         <td><?php echo htmlspecialchars($reservation['package_name']); ?></td>
                                         <td>₱<?php echo number_format($reservation['price'], 2); ?></td>
                                         <td>
-                                            <span class="badge bg-<?php echo $reservation['status'] === 'completed' ? 'success' : ($reservation['status'] === 'cancelled' ? 'danger' : 'warning'); ?>">
+                                            <span class="badge bg-<?php echo $reservation['status'] === 'cancelled' ? 'danger' : 'warning'; ?>">
+                                                <?php echo ucfirst(htmlspecialchars($reservation['status'])); ?>
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <a href="ticket.php?id=<?php echo $reservation['reservation_id']; ?>" class="btn btn-sm btn-primary">
+                                                <i class="fas fa-eye"></i> View
+                                            </a>
+                                            <?php if ($reservation['status'] === 'pending'): ?>
+                                            <a href="update_reservation.php?id=<?php echo $reservation['reservation_id']; ?>"
+                                                class="btn btn-sm btn-secondary">
+                                                <i class="fas fa-edit"></i> Update
+                                            </a>
+                                            <form action="cancel_reservation.php" method="POST"
+                                                style="display:inline;">
+                                                <input type="hidden" name="reservation_id"
+                                                    value="<?php echo $reservation['reservation_id']; ?>">
+                                                <button type="submit" class="btn btn-sm btn-danger"
+                                                    onclick="return confirm('Are you sure you want to cancel this reservation?');">
+                                                    <i class="fas fa-times"></i> Cancel
+                                                </button>
+                                            </form>
+                                            <?php endif; ?>
+                                        </td>
+                                    </tr>
+                                    <?php 
+                                        endwhile;
+                                    else:
+                                    ?>
+                                    <tr>
+                                        <td colspan="5" class="text-center">No recent reservations found.</td>
+                                    </tr>
+                                    <?php endif; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Completed Reservations</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Package</th>
+                                        <th>Price</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php
+                                    // Fetch completed reservations for the customer
+                                    $stmt = $conn->prepare("SELECT r.reservation_id, r.event_date, r.status, p.amount_paid, pk.package_name, pk.price 
+                                                            FROM reservations r 
+                                                            LEFT JOIN payment p ON r.reservation_id = p.reservation_id 
+                                                            LEFT JOIN packages pk ON r.package_id = pk.package_id
+                                                            WHERE r.customer_id = ? AND r.status = 'completed'
+                                                            ORDER BY r.event_date DESC");
+                                    $stmt->bind_param("i", $customer_id);
+                                    $stmt->execute();
+                                    $completed_reservations = $stmt->get_result();
+                                    
+                                    if ($completed_reservations->num_rows > 0):
+                                        while ($reservation = $completed_reservations->fetch_assoc()):
+                                    ?>
+                                    <tr>
+                                        <td><?php echo htmlspecialchars($reservation['event_date']); ?></td>
+                                        <td><?php echo htmlspecialchars($reservation['package_name']); ?></td>
+                                        <td>₱<?php echo number_format($reservation['price'], 2); ?></td>
+                                        <td>
+                                            <span class="badge bg-success">
                                                 <?php echo ucfirst(htmlspecialchars($reservation['status'])); ?>
                                             </span>
                                         </td>
@@ -104,7 +167,7 @@ $customer = $stmt->get_result()->fetch_assoc();
                                     else:
                                     ?>
                                     <tr>
-                                        <td colspan="5" class="text-center">No reservations found</td>
+                                        <td colspan="5" class="text-center">No completed reservations found.</td>
                                     </tr>
                                     <?php endif; ?>
                                 </tbody>
@@ -115,7 +178,6 @@ $customer = $stmt->get_result()->fetch_assoc();
             </div>
         </div>
     </div>
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 

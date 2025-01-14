@@ -45,6 +45,7 @@ $update_stmt->execute();
         }
 
         .card {
+            border: 1px solid black;
             width: 8.5in;
             height: 11in;
             padding: 1in;
@@ -77,8 +78,8 @@ $update_stmt->execute();
 <body>
     <?php include 'owner_navbar.php'; ?>
     <div class="container mt-5 center-content printableArea">
-        <h1 class="mb-4">Payment Receipt</h1>
         <div class="card">
+            <h1 class="mb-4">Payment Receipt</h1>
             <div class="card-body">
                 <h2 class="card-title">Payment Details</h2>
                 <p><strong>Transaction ID:</strong> <?php echo htmlspecialchars($reservation['reservation_id']); ?></p>
