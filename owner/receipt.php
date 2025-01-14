@@ -45,7 +45,9 @@ $update_stmt->execute();
         }
 
         .card {
-            width: 50%;
+            width: 8.5in;
+            height: 11in;
+            padding: 1in;
         }
 
         @media print {
@@ -79,7 +81,7 @@ $update_stmt->execute();
         <div class="card">
             <div class="card-body">
                 <h2 class="card-title">Payment Details</h2>
-                <p><strong>Reservation ID:</strong> <?php echo htmlspecialchars($reservation['reservation_id']); ?></p>
+                <p><strong>Transaction ID:</strong> <?php echo htmlspecialchars($reservation['reservation_id']); ?></p>
                 <p><strong>Processed By:</strong> <?php echo htmlspecialchars($payment['cashier_name']); ?></p>
                 <hr>
                 <p><strong>Name:</strong> <?php echo htmlspecialchars($reservation['first_name'] . ' ' . $reservation['middle_name'] . ' ' . $reservation['last_name']); ?></p>

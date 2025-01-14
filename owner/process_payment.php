@@ -38,7 +38,7 @@ $change = $amount - $leftover_balance;
 $sql = 'INSERT INTO payment (reservation_id, owner_id, total_price, down_payment, leftover_balance, amount_paid, payment_method, payment_date, `change`, created_at)
         VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), ?, NOW())';
 $stmt = $conn->prepare($sql);
-$payment_method = 'Full Payment'; // Assuming full payment for the remaining balance
+$payment_method = 'Downpayment 50%'; // Assuming full payment for the remaining balance
 $stmt->bind_param('iiddddsd', $reservation_id, $owner_id, $total_price, $down_payment, $leftover_balance, $amount, $payment_method, $change);
 
 if ($stmt->execute()) {

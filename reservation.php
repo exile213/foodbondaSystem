@@ -139,19 +139,19 @@ if ($result->num_rows > 0) {
                         $availableDishes = ['Lumpia shanghai-6opcs', 'Lumpia veggies-6opc', 'Fish fillet -2kls', 'Fish sweet and sour', 'Chopsuey', 'Whole chicken estofado', 'Chicken sisig', 'Chicken afritada', 'Buffalo wings', 'Chicken pastel', 'Chicken Curry', 'Pork menudo', 'Pork siomai', 'Pancit', 'Bihon', 'Spaghetti', 'Carbonara', 'Valenciana'];
                         foreach ($availableDishes as $dish) {
                             echo '<div class="col-md-4">
-                                                                                    <div class="form-check">
-                                                                                        <input class="form-check-input" type="checkbox" name="additionalDishes[]" value="' .
+                                                                                                                                                            <div class="form-check">
+                                                                                                                                                                <input class="form-check-input" type="checkbox" name="additionalDishes[]" value="' .
                                 htmlspecialchars($dish) .
                                 '" id="' .
                                 htmlspecialchars($dish) .
                                 '">
-                                                                                        <label class="form-check-label" for="' .
+                                                                                                                                                                <label class="form-check-label" for="' .
                                 htmlspecialchars($dish) .
                                 '">' .
                                 htmlspecialchars($dish) .
                                 '</label>
-                                                                                    </div>
-                                                                                </div>';
+                                                                                                                                                            </div>
+                                                                                                                                                        </div>';
                         }
                         ?>
                     </div>
@@ -184,9 +184,10 @@ if ($result->num_rows > 0) {
                     <p><strong>Account Name:</strong> JO*N PA*L B.</p>
                     <img src="qr.jpg" alt="GCash QR Code" class="img-fluid">
                     <div class="mb-3 mt-3">
-                        <label for="gcash_receipt" class="form-label">Upload GCash Receipt</label>
-                        <input type="file" class="form-control" id="gcash_receipt" name="gcash_receipt"
-                            accept=".jpg,.jpeg,.png,.gif">
+                        <label for="gcash_receipt">Upload Gcash Receipt:</label>
+                        <input type="file" id="gcash_receipt" name="gcash_receipt" accept="image/*"
+                            onchange="updateFileName()">
+                        <p id="file-name"></p>
                         <p id="file-name" class="form-text"></p>
                     </div>
                 </div>
@@ -267,7 +268,7 @@ if ($result->num_rows > 0) {
                             this.checked = false;
                             alert(
                                 `You can only select up to ${selectedPackage.additional_dishes_limit} additional dishes for this package.`
-                                );
+                            );
                         }
                     }
                 });

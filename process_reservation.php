@@ -63,37 +63,44 @@ try {
     }
 
     // Handle file upload
-    $gcash_receipt_path = null;
-    if ($payment_method === 'Downpayment 50%' && isset($_FILES['gcash_receipt'])) {
-        $upload_dir = 'uploads/receipts/';
+    $gcashReceiptPath = null;
+    if (isset($_FILES['gcash_receipt']) && $_FILES['gcash_receipt']['error'] === UPLOAD_ERR_OK) {
+        $uploadDir = 'uploads/receipts/';
+        $fileTmpPath = $_FILES['gcash_receipt']['tmp_name'];
+        $fileName = $_FILES['gcash_receipt']['name'];
+        $fileSize = $_FILES['gcash_receipt']['size'];
+        $fileType = $_FILES['gcash_receipt']['type'];
+        $fileNameCmps = explode('.', $fileName);
+        $fileExtension = strtolower(end($fileNameCmps));
 
-        // Create directory if it doesn't exist
-        if (!file_exists($upload_dir)) {
-            if (!mkdir($upload_dir, 0777, true)) {
-                throw new Exception('Failed to create upload directory');
-            }
+        // Generate a new file name with auto-increment number
+        $counterFile = 'uploads/receipts/counter.txt';
+        if (!file_exists($counterFile)) {
+            file_put_contents($counterFile, '0');
+        }
+        $counter = (int) file_get_contents($counterFile);
+        $counter++;
+        file_put_contents($counterFile, (string) $counter);
+
+        $newFileName = 'GcashReceipt' . $counter . '.' . $fileExtension;
+
+        // Check if the uploads/receipts directory exists, if not, create it
+        if (!is_dir($uploadDir)) {
+            mkdir($uploadDir, 0777, true);
         }
 
-        // Validate file
-        $allowed_types = ['image/jpeg', 'image/png', 'image/gif'];
-        $max_size = 5 * 1024 * 1024; // 5MB
-
-        if (!in_array($_FILES['gcash_receipt']['type'], $allowed_types)) {
-            throw new Exception('Invalid file type. Only JPG, PNG, and GIF are allowed');
+        // Move the file to the uploads/receipts directory with the new name
+        $dest_path = $uploadDir . $newFileName;
+        if (move_uploaded_file($fileTmpPath, $dest_path)) {
+            // File is successfully uploaded
+            $gcashReceiptPath = $dest_path;
+        } else {
+            // Handle the error
+            echo 'There was an error moving the uploaded file.';
+            exit();
         }
-
-        if ($_FILES['gcash_receipt']['size'] > $max_size) {
-            throw new Exception('File size exceeds limit');
-        }
-
-        $file_extension = pathinfo($_FILES['gcash_receipt']['name'], PATHINFO_EXTENSION);
-        $file_name = uniqid() . '.' . $file_extension;
-        $target_path = $upload_dir . $file_name;
-
-        if (!move_uploaded_file($_FILES['gcash_receipt']['tmp_name'], $target_path)) {
-            throw new Exception('Failed to upload receipt');
-        }
-        $gcash_receipt_path = $target_path;
+    } else {
+        echo 'No Gcash receipt was uploaded.';
     }
 
     // Begin transaction
@@ -113,7 +120,7 @@ try {
             throw new Exception('Failed to prepare statement: ' . $conn->error);
         }
 
-        $stmt->bind_param('isssssssssiiss', $customer_id, $first_name, $middle_name, $last_name, $contact, $email, $event_date, $delivery_time, $delivery_address, $event_type, $package_id, $selected_dishes, $gcash_receipt_path, $status);
+        $stmt->bind_param('isssssssssiiss', $customer_id, $first_name, $middle_name, $last_name, $contact, $email, $event_date, $delivery_time, $delivery_address, $event_type, $package_id, $selected_dishes, $gcashReceiptPath, $status);
 
         if (!$stmt->execute()) {
             throw new Exception('Failed to save reservation: ' . $stmt->error);
