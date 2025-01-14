@@ -102,7 +102,7 @@ if ($result->num_rows > 0) {
                         <p><strong>Contact:</strong> ${data.contact}</p>
                         <p><strong>Package:</strong> ${data.package_name}</p>
                         <p><strong>Total Price:</strong> ₱${parseFloat(data.package_price).toFixed(2)}</p>
-                        <p><strong>Total Paid:</strong> ₱${parseFloat(totalPaid).toFixed(2)}</p>
+                        <p><strong>Down :</strong> ₱${parseFloat(totalPaid).toFixed(2)}</p>
                         <p><strong>Remaining Balance:</strong> ₱${parseFloat(remainingBalance).toFixed(2)}</p>
                         <div class="mb-3">
                             <label for="receivedAmount" class="form-label">Received Amount</label>
@@ -113,6 +113,7 @@ if ($result->num_rows > 0) {
                     </div>
                 `;
 
+
                         document.getElementById('receivedAmount').addEventListener('input', function() {
                             var receivedAmount = parseFloat(this.value);
                             var changeAmount = receivedAmount - remainingBalance;
@@ -122,10 +123,16 @@ if ($result->num_rows > 0) {
                         document.getElementById('processPaymentButton').addEventListener('click', function() {
                             var receivedAmount = parseFloat(document.getElementById('receivedAmount')
                                 .value);
+                            if (receivedAmount < remainingBalance) {
+                                alert(
+                                    'The amount entered is less than the remaining balance. Please enter a valid amount.'
+                                );
+                                return;
+                            }
                             if (receivedAmount >= remainingBalance) {
                                 var formData = new URLSearchParams();
                                 formData.append('reservation_id', data.reservation_id);
-                                formData.append('amount', remainingBalance);
+                                formData.append('amount', receivedAmount);
                                 formData.append('owner_id', ownerId); // Use the owner ID here
 
                                 fetch('process_payment.php', {
@@ -149,8 +156,6 @@ if ($result->num_rows > 0) {
                                         console.error('Error:', error);
                                         alert('An error occurred while processing the payment.');
                                     });
-                            } else {
-                                alert('Received amount is less than the remaining balance.');
                             }
                         });
                     })

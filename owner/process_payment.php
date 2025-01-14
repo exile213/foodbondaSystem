@@ -1,6 +1,8 @@
 <?php
 require_once '../db_conn.php';
 
+header('Content-Type: application/json');
+
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     echo json_encode(['error' => 'Invalid request method']);
     exit();
@@ -29,12 +31,15 @@ $total_price = $reservation['package_price'];
 $down_payment = $total_price * 0.5;
 $leftover_balance = $total_price - $down_payment;
 
+// Calculate change
+$change = $amount - $leftover_balance;
+
 // Insert payment details into the payment table
-$sql = 'INSERT INTO payment (reservation_id, owner_id, total_price, down_payment, leftover_balance, amount_paid, payment_method, payment_date, created_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), NOW())';
+$sql = 'INSERT INTO payment (reservation_id, owner_id, total_price, down_payment, leftover_balance, amount_paid, payment_method, payment_date, `change`, created_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), ?, NOW())';
 $stmt = $conn->prepare($sql);
 $payment_method = 'Full Payment'; // Assuming full payment for the remaining balance
-$stmt->bind_param('iidddds', $reservation_id, $owner_id, $total_price, $down_payment, $leftover_balance, $amount, $payment_method);
+$stmt->bind_param('iiddddsd', $reservation_id, $owner_id, $total_price, $down_payment, $leftover_balance, $amount, $payment_method, $change);
 
 if ($stmt->execute()) {
     echo json_encode(['success' => true]);

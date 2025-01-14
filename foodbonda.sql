@@ -49,7 +49,7 @@ CREATE TABLE IF NOT EXISTS `notifications` (
   PRIMARY KEY (`notification_id`),
   KEY `customer_id` (`customer_id`),
   CONSTRAINT `notifications_ibfk_1` FOREIGN KEY (`customer_id`) REFERENCES `customers` (`customer_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- Dumping data for table foodbonda.notifications: ~11 rows (approximately)
 INSERT INTO `notifications` (`notification_id`, `customer_id`, `message`, `is_read`, `created_at`) VALUES
@@ -60,11 +60,14 @@ INSERT INTO `notifications` (`notification_id`, `customer_id`, `message`, `is_re
 	(5, 2, 'Your reservation has been canceled.', 1, '2025-01-12 15:12:38'),
 	(6, 2, 'Your reservation has been canceled.', 1, '2025-01-12 15:12:40'),
 	(7, 2, 'Your reservation has been approved.', 1, '2025-01-12 15:14:34'),
-	(8, 2, 'Your reservation has been canceled.', 0, '2025-01-13 04:33:56'),
-	(9, 2, 'Your reservation has been approved.', 0, '2025-01-13 04:34:29'),
-	(10, 2, 'Your reservation has been approved.', 0, '2025-01-13 06:08:55'),
-	(11, 2, 'Your reservation has been approved.', 0, '2025-01-13 07:49:15'),
-	(12, 1, 'Your reservation has been approved.', 1, '2025-01-13 08:58:13');
+	(8, 2, 'Your reservation has been canceled.', 1, '2025-01-13 04:33:56'),
+	(9, 2, 'Your reservation has been approved.', 1, '2025-01-13 04:34:29'),
+	(10, 2, 'Your reservation has been approved.', 1, '2025-01-13 06:08:55'),
+	(11, 2, 'Your reservation has been approved.', 1, '2025-01-13 07:49:15'),
+	(12, 1, 'Your reservation has been approved.', 1, '2025-01-13 08:58:13'),
+	(13, 2, 'Your reservation has been approved.', 1, '2025-01-13 22:28:40'),
+	(14, 2, 'Your reservation has been canceled.', 1, '2025-01-13 22:30:56'),
+	(15, 2, 'Your reservation has been approved.', 1, '2025-01-13 22:31:00');
 
 -- Dumping structure for table foodbonda.owners
 CREATE TABLE IF NOT EXISTS `owners` (
@@ -117,7 +120,8 @@ CREATE TABLE IF NOT EXISTS `payment` (
   `down_payment` decimal(10,2) DEFAULT NULL,
   `leftover_balance` decimal(10,2) DEFAULT NULL,
   `amount_paid` decimal(10,2) DEFAULT NULL,
-  `payment_method` varchar(50) DEFAULT NULL,
+  `payment_method` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `change` decimal(10,2) DEFAULT '0.00',
   `payment_date` date DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`payment_id`),
@@ -125,9 +129,11 @@ CREATE TABLE IF NOT EXISTS `payment` (
   KEY `owner_id` (`owner_id`),
   CONSTRAINT `owner_foreign` FOREIGN KEY (`owner_id`) REFERENCES `owners` (`owner_id`),
   CONSTRAINT `reserve_foreign` FOREIGN KEY (`reservation_id`) REFERENCES `reservations` (`reservation_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- Dumping data for table foodbonda.payment: ~2 rows (approximately)
+-- Dumping data for table foodbonda.payment: ~1 rows (approximately)
+INSERT INTO `payment` (`payment_id`, `reservation_id`, `owner_id`, `total_price`, `down_payment`, `leftover_balance`, `amount_paid`, `payment_method`, `change`, `payment_date`, `created_at`) VALUES
+	(9, 18, 3, 2999.00, 1499.50, 1499.50, 1499.50, 'Full Payment', 0.00, '2025-01-14', '2025-01-13 22:35:13');
 
 -- Dumping structure for table foodbonda.reservations
 CREATE TABLE IF NOT EXISTS `reservations` (
@@ -153,9 +159,12 @@ CREATE TABLE IF NOT EXISTS `reservations` (
   KEY `package_id` (`package_id`),
   CONSTRAINT `customer_foreign` FOREIGN KEY (`customer_id`) REFERENCES `customers` (`customer_id`),
   CONSTRAINT `package_foreign` FOREIGN KEY (`package_id`) REFERENCES `packages` (`package_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- Dumping data for table foodbonda.reservations: ~3 rows (approximately)
+INSERT INTO `reservations` (`reservation_id`, `customer_id`, `package_id`, `first_name`, `middle_name`, `last_name`, `contact`, `email`, `event_date`, `delivery_time`, `delivery_address`, `event_type`, `selected_dishes`, `gcash_receipt_path`, `status`, `created_at`, `updated_at`) VALUES
+	(17, 2, 3, 'Charles Ivan', 'Colado', 'Monserate', '09464519088', 'cicmonserate.chmsu@gmail.com', '2025-01-18', '05:22:00', '#27\r\nJOVER ST', 'birthday', '0', 'uploads/receipts/678583b1c94cf.jpg', 'pending', '2025-01-13 21:20:49', '2025-01-13 21:20:49'),
+	(18, 2, 2, 'Peter', 'Colado', 'Monserate', '09464519088', 'cicmonserate.chmsu@gmail.com', '2025-01-18', '05:22:00', '#27\r\nJOVER ST', 'birthday', '0', 'uploads/receipts/67858dbd6d7c6.jpg', 'completed', '2025-01-13 22:03:41', '2025-01-13 22:35:14');
 
 /*!40103 SET TIME_ZONE=IFNULL(@OLD_TIME_ZONE, 'system') */;
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
